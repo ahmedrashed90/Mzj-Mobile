@@ -1,0 +1,1694 @@
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+<head>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>المخزون — MZJ Cars</title>
+
+<!-- No-flash auth gate -->
+<style id="noFlash">
+  html{background:#fff8ef}
+  body{opacity:0;transition:.14s ease}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+
+<style>
+  :root{
+    --brown:#3e2420; --beige:#bc8f74; --cream:#fff8ef;
+    --text:#1f2937; --muted:#6b7280;
+    --line:#e5e7eb; --line-strong:#d1d5db;
+    --card:#ffffff; --bg:#fff8ef; --radius:14px;
+    --shadow:0 10px 24px rgba(0,0,0,.06);
+    --ok:#16a34a; --danger:#ef4444; --info:#0ea5e9;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Tajawal",system-ui,Arial;
+  }
+
+  /* Topbar + main tabs */
+  .topbar{
+    position:sticky;top:0;z-index:60;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{
+    max-width:1280px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 18px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .logo-box{
+    width:36px;height:36px;
+    border-radius:10px;
+    background:linear-gradient(135deg,#3e2420,#1b0e0c);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    box-shadow:0 8px 18px rgba(0,0,0,.18);
+  }
+  .brand h1{
+    margin:0;
+    font-size:18px;
+    color:var(--brown);
+    font-weight:800;
+  }
+  .brand small{
+    color:var(--muted);
+    font-size:12px;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    padding:7px 12px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    text-decoration:none;
+    color:var(--text);
+    font-weight:700;
+    font-size:13px;
+  }
+  .tab.active{
+    background:var(--brown);
+    border-color:var(--brown);
+    color:#fff;
+  }
+  .status-badge{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:999px;
+    padding:5px 9px;
+    font-size:11px;
+  }
+  .dot{
+    width:9px;height:9px;border-radius:999px;
+    background:#f59e0b;
+  }
+  .dot.ok{background:var(--ok)}
+  .dot.err{background:var(--danger)}
+  .dot.warn{background:#f59e0b}
+
+  /* Buttons */
+  .btn{
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:12px;
+    padding:7px 12px;
+    cursor:pointer;
+    font-weight:700;
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    transition:.15s;
+    font-size:13px;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{
+    background:var(--beige);
+    border-color:var(--beige);
+    color:#fff;
+  }
+  .btn-ghost{
+    background:#fff;
+  }
+  .btn-outline{
+    background:#fff;
+    border-color:var(--brown);
+    color:var(--brown);
+  }
+
+  .container{
+    max-width:1280px;
+    margin:18px auto;
+    padding:0 16px;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:14px;
+  }
+
+  /* Summary */
+  .summary{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  @media (max-width:640px){
+    .summary{grid-template-columns:1fr}
+  }
+  .stat{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+  }
+  .stat i{color:var(--beige)}
+  .stat-title{
+    font-size:12px;
+    color:var(--muted);
+  }
+  .stat-num{
+    font-size:22px;
+    font-weight:800;
+    color:var(--brown);
+  }
+
+  .card h3{
+    margin:0 0 10px;
+    color:var(--brown);
+    font-size:16px;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .hint-text{font-size:12px;color:var(--muted);margin:0 0 8px}
+
+  /* Generic layout helpers */
+  .card-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .section-title{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--brown);
+  }
+  .section-title svg{width:18px;height:18px}
+  .hint{font-size:12px;color:var(--muted)}
+  .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .grid{display:grid;gap:8px}
+
+  .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(max-width:1080px){
+    .grid-4{grid-template-columns:repeat(3,minmax(0,1fr))}
+  }
+  @media(max-width:860px){
+    .grid-4,.grid-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media(max-width:620px){
+    .grid-4,.grid-3,.grid-2{grid-template-columns:1fr}
+  }
+
+  /* Inner tabs */
+  .inner-tabs-header{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .inner-tab{
+    padding:8px 18px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    cursor:pointer;
+    font-weight:700;
+    font-size:14px;
+    color:var(--brown);
+    box-shadow:0 2px 4px rgba(0,0,0,.04);
+    transition:background-color .15s,border-color .15s,box-shadow .15s,color .15s,transform .08s;
+  }
+  .inner-tab:hover{
+    border-color:var(--beige);
+    box-shadow:0 3px 6px rgba(0,0,0,.06);
+  }
+  .inner-tab.active{
+    background:var(--brown);
+    border-color:var(--brown);
+    color:#fff;
+    box-shadow:0 6px 14px rgba(62,36,32,.28);
+    transform:translateY(1px);
+  }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* Inputs */
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--brown);
+    margin-bottom:4px;
+  }
+  .input,.select,textarea{
+    width:100%;
+    padding:9px 11px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fff;
+    font-family:inherit;
+    font-size:13px;
+    transition:border-color .15s, box-shadow .15s, background-color .15s;
+  }
+  .input:focus,.select:focus,textarea:focus{
+    outline:none;
+    border-color:var(--beige);
+    box-shadow:0 0 0 1px rgba(188,143,116,.35);
+    background:#fff;
+  }
+  textarea{min-height:80px;resize:vertical}
+
+  .search{position:relative}
+  .search i{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--muted);
+    font-size:13px;
+  }
+  .search input{padding-right:30px}
+
+  .filter-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr;
+    gap:10px;
+    margin-top:8px;
+  }
+  @media(max-width:1100px){.filter-grid{grid-template-columns:1fr 1fr 1fr}}
+  @media(max-width:800px){.filter-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.filter-grid{grid-template-columns:1fr}}
+
+  .under-field{margin-top:8px;display:flex;justify-content:flex-start}
+
+  /* Table */
+  .table-wrap{
+    overflow:auto;
+    border:1px solid var(--line);
+    border-radius:12px;
+    margin-top:8px;
+  }
+  .table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+  }
+  .table th,.table td{
+    border:1px solid var(--line);
+    border-left-color:var(--line-strong);
+    padding:8px 10px;
+    text-align:right;
+    vertical-align:top;
+    font-size:13px;
+    background:#fff;
+  }
+  .table thead th{
+    position:sticky;top:0;
+    background:#f9fafb;
+    border-bottom:2px solid var(--line-strong);
+    z-index:1;
+  }
+  .table tbody tr:nth-child(odd){background:#fff}
+  .table tbody tr:nth-child(even){background:#fffdf8}
+  .table tbody tr:hover td{background:#f3f4f6}
+  .tag{
+    display:inline-block;
+    background:#f6f6f6;
+    border:1px solid var(--line);
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:12px;
+    color:#444;
+  }
+  .vin{
+    cursor:pointer;
+    color:var(--beige);
+    white-space:nowrap;
+  }
+  .vin:hover{text-decoration:underline}
+  .short{background:#fff4f4}
+  .badge{
+    display:inline-block;
+    background:#fff2e9;
+    border:1px solid #f1d0bd;
+    color:var(--brown);
+    padding:2px 8px;
+    border-radius:999px;
+    font-size:12px;
+  }
+  .muted-text{color:var(--muted);font-size:12px}
+  .nowrap{white-space:nowrap}
+
+  /* Toast bottom-right */
+  .toast{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#1f2937;
+    color:#fff;
+    padding:9px 13px;
+    border-radius:999px;
+    display:none;
+    font-size:12px;
+    z-index:300;
+  }
+  .toast.show{
+    display:block;
+    animation:fade .18s ease-out;
+  }
+  @keyframes fade{
+    from{opacity:0;transform:translate(0,6px)}
+    to{opacity:1;transform:translate(0,0)}
+  }
+
+  /* Auth */
+  .auth-wrap{
+    min-height:60vh;
+    display:grid;
+    place-items:center;
+    padding:24px;
+  }
+  .auth-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:18px;
+    max-width:420px;width:96%;
+  }
+  .auth-card h2{
+    margin:0 0 10px;
+    color:var(--brown);
+    font-weight:800;
+  }
+  .auth-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+  .hint{color:var(--muted);font-size:12px}
+
+  /* حركة نقل السيارات – ستايل مثل الصورة ٢ */
+  .move-header-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .move-to-block{
+    flex:1;
+    max-width:460px;
+  }
+  .move-header-row #btnAddMoveRow{
+    border-radius:999px;
+    white-space:nowrap;
+    padding-inline:16px;
+  }
+
+  .btn-move-pill{
+    background:var(--brown);
+    border-color:var(--brown);
+    color:#fff;
+    border-radius:999px;
+    padding-inline:20px;
+  }
+
+  .move-shell{
+    border-radius:18px;
+    border:1px solid #f3e7db;
+    background:#fff8ef;
+    padding:14px 16px 12px;
+    margin-top:8px;
+  }
+  .move-shell-top{
+    display:flex;
+    justify-content:flex-start;
+    margin-bottom:8px;
+  }
+  .move-shell-top .btn{
+    border-radius:999px;
+    font-size:12px;
+    padding-inline:14px;
+  }
+
+  .move-row{
+    border-bottom:1px solid #f3e7db;
+    border-radius:0;
+    padding:10px 0;
+    background:transparent;
+  }
+  .move-row:last-child{
+    border-bottom:none;
+  }
+  .move-row-actions{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    margin-bottom:6px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .move-row-title{
+    font-size:12px;
+    font-weight:700;
+    color:var(--brown);
+    margin-bottom:0;
+  }
+
+  .move-rows-grid{gap:8px;}
+
+  .move-actions-row{
+    margin-top:12px;
+    justify-content:flex-end;
+  }
+  .move-actions-row .btn-primary{
+    background:var(--brown);
+    border-color:var(--brown);
+  }
+  .move-actions-row .btn-ghost{
+    border-radius:999px;
+  }
+
+  .checklist{
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fffaf2;
+    padding:10px;
+    margin-top:10px;
+  }
+  .checklist h4{
+    margin:0 0 8px;
+    color:var(--brown);
+    font-size:14px;
+    font-weight:800;
+  }
+
+  .move-alert{
+    display:none;
+    align-items:flex-start;
+    gap:10px;
+    border-radius:12px;
+    padding:10px;
+    margin-top:10px;
+  }
+  .move-alert .icon{
+    font-size:18px;
+    margin-top:2px;
+  }
+  .move-alert.success{
+    background:#ecfdf3;
+    border:1px solid #bbf7d0;
+    color:#166534;
+  }
+  .move-alert.info{
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    color:#1d4ed8;
+  }
+  .move-alert.error{
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    color:#b91c1c;
+  }
+  .move-alert ul{
+    margin:4px 0 0;
+    padding-right:18px;
+    font-size:12px;
+  }
+  .move-alert li+li{margin-top:2px}
+
+  /* بطاقة عرض بيانات السيارة */
+  #carDetailsBox{
+    border-color:var(--line);
+    background:#fff;
+    margin-top:12px;
+  }
+  #carDetails{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+    font-size:13px;
+  }
+  #carDetails b{color:var(--brown)}
+  #carDetailsHint{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  /* مودال ملاحظات احترافي */
+  .notes-modal-backdrop{
+    position:fixed;inset:0;
+    background:rgba(15,23,42,.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:350;
+  }
+  .notes-modal{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 20px 45px rgba(0,0,0,.18);
+    max-width:520px;
+    width:94%;
+    padding:16px 16px 14px;
+    border:1px solid var(--line);
+    position:relative;
+  }
+  .notes-modal h3{
+    margin:0 0 8px;
+    color:var(--brown);
+    font-size:16px;
+    font-weight:800;
+  }
+  .notes-modal p{
+    margin:0 0 10px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .notes-modal textarea{min-height:110px}
+  .notes-modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:10px;
+  }
+  .notes-close{
+    position:absolute;
+    left:10px;top:8px;
+    border:none;
+    background:transparent;
+    cursor:pointer;
+    color:var(--muted);
+  }
+
+  .cell-notes{cursor:pointer}
+  .cell-notes:hover{background:#fff3e8}
+
+</style>
+<link rel="stylesheet" href="./mzj-ui.css"/>
+</head>
+<body class="mzj"> 
+
+<!-- MZJ Unified Topbar -->
+<header class="mzj-topbar">
+  <div class="topbar-left">
+    <button class="icon-btn" id="mzjSidebarBtn" aria-label="القائمة">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="brand">
+      <div class="brand-mark">MZJ</div>
+      <div class="brand-text">
+        <div class="brand-title">محمد بن ذعار العجمي للسيارات</div>
+        <div class="brand-sub">Workspace</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar-center">
+    <div class="mzj-breadcrumb">
+      <span class="crumb">الرئيسية</span>
+      <i class="fa-solid fa-chevron-left"></i>
+      <span class="crumb current">المخزون</span>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="mzj-chip">
+      <span class="dot warn" id="connDot" style="margin-inline-start:2px"></span>
+      <span id="connText">جارِ الاتصال…</span>
+    </div>
+    <button class="mzj-btn mzj-btn-ghost" id="btnSignOut" style="display:none" type="button">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>تسجيل الخروج</span>
+    </button>
+  </div>
+</header>
+
+<div class="mzj-shell" id="mzjShell">
+  <aside class="mzj-sidebar" id="mzjSidebar">
+    <div class="side-section">
+      <div class="side-title">الإدارة</div>
+      <nav class="side-nav">
+        <a class="side-link tab" href="./sales.html"><i class="fa-solid fa-handshake"></i><span>تتبع المبيعات</span></a>
+        <a class="side-link tab" href="./dashboard.html"><i class="fa-solid fa-gauge"></i><span>الداش بورد</span></a>
+        <a class="side-link tab active" href="./inventory.html"><i class="fa-solid fa-boxes-stacked"></i><span>المخزون</span></a>
+        <a class="side-link tab" href="./vt.html"><i class="fa-solid fa-right-left"></i><span>نقل السيارات</span></a>
+        <a class="side-link tab" href="./photoshoot-user.html"><i class="fa-solid fa-camera"></i><span>إدارة الطلبات</span></a>
+        <a class="side-link tab" href="./cars.html"><i class="fa-solid fa-car"></i><span>كل السيارات</span></a>
+        <a class="side-link tab" href="./admin.html"><i class="fa-solid fa-shield-halved"></i><span>الإدارة</span></a>
+        <a class="side-link tab" href="./Activity.html"><i class="fa-solid fa-clipboard-list"></i><span>سجل النشاط</span></a>
+        <a class="side-link tab" href="./act.html"><i class="fa-solid fa-clipboard-list"></i><span>سجل الحركات</span></a>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="mzj-backdrop" id="mzjBackdrop"></div>
+  <main class="mzj-content">
+
+<!-- Auth Gate -->
+<div id="authGate" class="auth-wrap">
+  <div class="auth-card">
+    <h2>تسجيل الدخول</h2>
+    <label for="email">البريد الإلكتروني</label>
+    <input id="email" type="email" class="input" placeholder="you@example.com"/>
+    <label for="password" style="margin-top:8px">كلمة المرور</label>
+    <input id="password" type="password" class="input" placeholder="••••••••"/>
+    <div class="auth-actions">
+      <button class="btn btn-primary" id="btnLogin">تسجيل الدخول</button>
+      <button class="btn btn-outline" id="btnSignup">إنشاء حساب</button>
+    </div>
+    <p class="hint" id="authHint" style="margin-top:10px"></p>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
+  <div class="container">
+
+    <!-- Summary -->
+    <div class="card">
+      <div class="summary">
+        <div class="stat">
+          <i class="fa-solid fa-car"></i>
+          <div>
+            <div class="stat-title">إجمالي السيارات بدون تحت التسليم - تم التسليم</div>
+            <div class="stat-num" id="totalCount">0</div>
+          </div>
+        </div>
+        <div class="stat">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <div class="stat-title">عدد الأماكن (بعد الفلاتر)</div>
+            <div class="stat-num" id="placesCount">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main card with two inner tabs -->
+    <div class="card">
+      <div class="inner-tabs-header">
+        <button class="inner-tab active" data-tab="cars">جدول السيارات</button>
+        <button class="inner-tab" data-tab="moves">حركة نقل السيارات (برقم الهيكل)</button>
+      </div>
+
+      <!-- Tab 1: جدول السيارات -->
+      <div id="tab-cars" class="tab-panel active">
+        <div>
+          <h3><i class="fa-solid fa-filter" style="color:var(--beige)"></i> الفلاتر</h3>
+          <div class="filter-grid">
+            <div class="search">
+              <input id="search" class="input" placeholder="بحث في: سيارة/بيان/وكيل/ألوان/موديل/لوحة/مكان/رقم الهيكل">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <select id="modelFilter" class="select"><option value="">كل السيارات</option></select>
+            <input id="yearFilter" class="input" type="number" min="2000" max="2100" placeholder="الموديل (سنة)">
+            <input id="dealerFilter" class="input" placeholder="الوكيل">
+            <div>
+              <select id="locationFilter" class="select"><option value="">كل الأماكن</option><option value="__NO_AGENCY__">كل الأماكن (بدون الوكالة)</option></select>
+              <div class="under-field">
+                <button id="exportAll" class="btn btn-primary">
+                  <i class="fa-regular fa-file-excel"></i> تصدير Excel (حسب الفلاتر)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <h3><i class="fa-solid fa-table" style="color:var(--beige)"></i> جدول السيارات</h3>
+            <div class="tools">
+              <span class="badge" id="visibleCount">0 صف</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="table" id="carsTable">
+              <thead>
+                <tr>
+                  <th>م</th>
+                  <th>السيارة</th>
+                  <th>البيان</th>
+                  <th>الوكيل</th>
+                  <th>اللون الخارجي</th>
+                  <th>اللون الداخلي</th>
+                  <th>الموديل</th>
+                  <th>اللوحة</th>
+                  <th>المكان</th>
+                  <th>رقم الهيكل</th>
+                  <th>الملاحظات (اضغط للتعديل)</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: حركة نقل السيارات -->
+      <div id="tab-moves" class="tab-panel">
+        <div class="card-header">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M7 10l5-5 5 5"/>
+              <path d="M7 14l5 5 5-5"/>
+            </svg>
+            <h2 style="margin:0;font-size:16px;font-weight:800">حركة نقل السيارات (برقم الهيكل)</h2>
+          </div>
+          <span class="hint">
+            يمكن نقل عدد مفتوح من السيارات — يتم تحديد <b>من</b> تلقائيًا بمجرد كتابة رقم الهيكل، و<b>إلى</b> مكان واحد لكل الحركة.
+          </span>
+        </div>
+
+        <!-- اختيار المكان (إلى) + إضافة حركة أخرى -->
+        <div class="move-header-row">
+          <div class="move-to-block">
+            <label>إلى</label>
+            <select id="moveToGlobal" class="select">
+              <option value="">اختر المكان الجديد</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-ghost" id="btnAddMoveRow">
+            <i class="fa-solid fa-plus"></i> إضافة حركة أخرى
+          </button>
+        </div>
+
+        <!-- الكارت الداخلي للحركة -->
+        <div class="move-shell">
+          <div class="move-shell-top">
+            <button type="button" class="btn btn-ghost" id="btnClearMoves">
+              مسح الحركة
+            </button>
+          </div>
+
+          <!-- صفوف النقل (ديناميكية) -->
+          <div id="moveRowsContainer" class="grid move-rows-grid"></div>
+
+          <!-- datalist للاقتراحات -->
+          <datalist id="vinHints"></datalist>
+
+          <!-- ملاحظات سيارات بها ملاحظات -->
+          <div id="notesIssuesBox" class="checklist" style="display:none">
+            <h4>ملاحظات عند النقل إلى <b>سيارات بها ملاحظات</b></h4>
+            <label for="issuesNotes">ملاحظات هذه السيارة</label>
+            <textarea id="issuesNotes" placeholder="مثال: خدوش بسيطة / انتظار قطع / …"></textarea>
+          </div>
+
+          <div class="row move-actions-row">
+            <button class="btn btn-ghost" id="btnFindByVin" title="عرض بيانات السيارة (أول سطر غير فارغ)">
+              <i class="fa-solid fa-magnifying-glass"></i> عرض البيانات
+            </button>
+            <button class="btn btn-primary btn-move-pill" id="btnMove" title="تنفيذ النقل">
+              <i class="fa-solid fa-right-left"></i> نقل
+            </button>
+          </div>
+          <p class="hint" id="moveStatus" style="margin-top:6px"></p>
+
+          <!-- إشعار حركة النقل الكبير -->
+          <div id="moveAlert" class="move-alert">
+            <div class="icon">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+              <div class="title" id="moveAlertTitle" style="font-weight:700;font-size:13px">نتيجة حركة النقل</div>
+              <ul id="moveAlertList"></ul>
+            </div>
+          </div>
+
+          <!-- بطاقة عرض بيانات السيارة -->
+          <div id="carDetailsBox" class="card" style="display:none">
+            <div class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="4" width="18" height="16" rx="2"/>
+                <path d="M7 8h10"/>
+              </svg>
+              <h2 style="margin:0;font-size:15px;font-weight:800">عرض بيانات السيارة</h2>
+            </div>
+            <div id="carDetails" style="margin-top:8px"></div>
+            <div id="carDetailsHint"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">تم</div>
+
+<!-- مودال الملاحظات -->
+<div id="notesModal" class="notes-modal-backdrop">
+  <div class="notes-modal">
+    <button class="notes-close" id="notesModalClose" title="إغلاق">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <h3>تعديل الملاحظات</h3>
+    <p>اكتب ملاحظات السيارة، ثم اضغط حفظ. تُحفظ مباشرة في قاعدة البيانات.</p>
+    <textarea id="notesModalInput" class="input" placeholder="مثال: خدش بسيط في الرفرف الأمامي…"></textarea>
+    <div class="notes-modal-footer">
+      <button class="btn btn-ghost" id="notesModalCancel">إلغاء</button>
+      <button class="btn btn-primary" id="notesModalSave">
+        <i class="fa-regular fa-floppy-disk"></i> حفظ
+      </button>
+    </div>
+  </div>
+</div>
+
+
+  </main>
+</div>
+
+<script src="./mzj-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- Firebase (Modules) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {getFirestore, doc, getDoc, onSnapshot, updateDoc, collection, addDoc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC614bGqnYf4Q-weTNemzWENTpa8DjGeHw",
+    authDomain: "mzj-agenda.firebaseapp.com",
+    projectId: "mzj-agenda",
+    storageBucket: "mzj-agenda.firebasestorage.app",
+    messagingSenderId: "834700407721",
+    appId: "1:834700407721:web:75c17665d4f032fd65cab8"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const STATE_REF = doc(db, "mzj_admin_state", "v1");
+
+  
+  // ===== Helpers =====
+  const mzjUpdateDoc = (...args) => updateDoc(...args);
+  const clean = (v)=> String(v ?? '')
+    .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+/* ===== Roles & Permissions ===== */
+  const ROLE_ADMIN   = 'الادارة';
+  const ROLE_IDARI   = 'اداري';
+  const ROLE_BRANCH  = 'مدراء فروع';
+
+  // الصفحات المسموح بها لكل تصنيف (للتابات)
+  const ROLE_PAGES = {
+    [ROLE_ADMIN] : 'ALL',
+    [ROLE_IDARI] : [
+  'dashboard.html',
+  'vt.html',
+  'photoshoot-user.html',
+  'cars.html',
+  'sales.html',
+  'inventory.html',
+  'act.html'
+],
+    [ROLE_BRANCH]: ['dashboard.html','inventory.html']
+  };
+
+  // صفحة المخزون متاحة للإدارة فقط
+const PAGE_ALLOWED_ROLES = [ROLE_ADMIN, ROLE_IDARI, ROLE_BRANCH];
+
+  async function fetchUserRole(user){
+    try{
+      const snap = await getDoc(doc(db, 'user', user.uid));
+      if(snap.exists()){
+        const data = snap.data() || {};
+        return data.role || null;
+      }
+    }catch(e){
+      console.error('Error fetching user role', e);
+    }
+    return null;
+  }
+
+  function applyTabsVisibility(role){
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab=>{
+      const href = tab.getAttribute('href') || '';
+      const page = (href.split('/').pop() || '').split('?')[0];
+      if(!page) return;
+      const perm = ROLE_PAGES[role];
+      if(!perm){
+        tab.style.display='none';
+        return;
+      }
+      if(perm === 'ALL') return;
+      if(!perm.includes(page)){
+        tab.style.display='none';
+      }
+    });
+  }
+
+
+
+  const $ = s => document.querySelector(s);
+
+  const connDot  = $('#connDot');
+  const connText = $('#connText');
+  const authGate = $('#authGate');
+  const appRoot  = $('#app');
+  const btnLogin = $('#btnLogin');
+  const btnSignup= $('#btnSignup');
+  const btnSignOut = $('#btnSignOut');
+  const emailEl  = $('#email');
+  const passEl   = $('#password');
+  const authHint = $('#authHint');
+  const toast    = $('#toast');
+
+  const searchEl       = $('#search');
+  const modelFilter    = $('#modelFilter');
+  const yearFilter     = $('#yearFilter');
+  const dealerFilter   = $('#dealerFilter');
+  const locationFilter = $('#locationFilter');
+
+  const tb = $('#carsTable tbody');
+
+  const notesModal       = $('#notesModal');
+  const notesModalInput  = $('#notesModalInput');
+  const notesModalCancel = $('#notesModalCancel');
+  const notesModalSave   = $('#notesModalSave');
+  const notesModalClose  = $('#notesModalClose');
+
+  /* حركة نقل DOM */
+  const moveRowsContainer = $('#moveRowsContainer');
+  const moveToGlobal      = $('#moveToGlobal');
+  const btnAddMoveRow     = $('#btnAddMoveRow');
+  const btnFindByVin      = $('#btnFindByVin');
+  const btnMove           = $('#btnMove');
+  const moveStatus        = $('#moveStatus');
+  const carDetailsBox     = $('#carDetailsBox');
+  const carDetails        = $('#carDetails');
+  const carDetailsHint    = $('#carDetailsHint');
+  const notesIssuesBox    = $('#notesIssuesBox');
+  const issuesNotes       = $('#issuesNotes');
+  const vinHints          = $('#vinHints');
+  const moveAlert         = $('#moveAlert');
+  const moveAlertTitle    = $('#moveAlertTitle');
+  const moveAlertList     = $('#moveAlertList');
+  const btnClearMoves     = $('#btnClearMoves');
+
+  /* Inner tabs */
+  const innerTabs = document.querySelectorAll('.inner-tab');
+  const tabCars   = document.getElementById('tab-cars');
+  const tabMoves  = document.getElementById('tab-moves');
+
+  /* State */
+  let stock=[], moves=[], models=[], variantsMap={};
+  let editingVin = null;
+
+  const uniq = arr => [...new Set(arr)];
+  const pad  = n => n<10?'0'+n:n;
+  const now  = ()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;};
+  const onlyDate = str => (str||'').toString().slice(0,10);
+
+  function normalizeVin(v){
+    if(!v) return '';
+    const ar = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+    return v.toString().trim().split('').map(ch=> ar[ch] ?? ch).join('').toUpperCase();
+  }
+  function debounce(fn,wait=250){
+    let t; return (...args)=>{clearTimeout(t);t=setTimeout(()=>fn(...args),wait)};
+  }
+
+  function liftNoFlash(){
+    const nf = document.getElementById('noFlash');
+    if(nf) nf.remove();
+    document.body.style.opacity = '1';
+  }
+
+  function setStatus(mode, txt){
+    connDot.className='dot '+(mode==='ok'?'ok':mode==='err'?'err':'warn');
+    connText.textContent = txt;
+  }
+  function showToastMsg(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  /* Auth gate */
+  onAuthStateChanged(auth, async (user)=>{
+    if(user){
+      const role = await fetchUserRole(user);
+    window.__mzjUserRole = role || null;
+
+      // لو ملوش دور أو مش من المسموح لهم يشوفوا صفحة المخزون
+      if(!role || !PAGE_ALLOWED_ROLES.includes(role)){
+        window.location.href = 'unauthorized.html';
+        return;
+      }
+
+      authGate.style.display='none';
+      appRoot.style.display='block';
+      btnSignOut.style.display='inline-flex';
+      setStatus('ok', `متصل كمستخدم: ${user.email} — الدور: ${role}`);
+      applyTabsVisibility(role);
+      liftNoFlash();
+      await initData();
+      subscribeLive();
+    }else{
+      appRoot.style.display='none';
+      authGate.style.display='grid';
+      btnSignOut.style.display='none';
+      setStatus('warn','لم يتم تسجيل الدخول');
+      liftNoFlash();
+    }
+  });btnLogin.addEventListener('click', async ()=>{
+    authHint.textContent='';
+    try{
+      await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
+    }catch(e){
+      authHint.textContent='فشل تسجيل الدخول: '+(e?.message||e);
+    }
+  });
+  btnSignup.addEventListener('click', async ()=>{
+    authHint.textContent='';
+    try{
+      await createUserWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
+    }catch(e){
+      authHint.textContent='تعذّر إنشاء الحساب: '+(e?.message||e);
+    }
+  });
+  btnSignOut.addEventListener('click', ()=> signOut(auth));
+
+  /* Data init / subscribe */
+  async function initData(){
+    try{
+      const s=await getDoc(STATE_REF);
+      if(s.exists()){
+        const d=s.data()||{};
+        stock = Array.isArray(d.stock)? d.stock: [];
+        moves = Array.isArray(d.moves)? d.moves: [];
+        models = Array.isArray(d.models)? d.models: [];
+        variantsMap = d.variantsMap || {};
+      }else{
+        stock=[]; moves=[]; models=[]; variantsMap={};
+      }
+      initFilters();
+      fillMoveLists();
+      renderAll();
+      setStatus('ok','تم تحميل البيانات');
+    }catch(e){
+      console.error(e);
+      setStatus('warn','تعذّر الاتصال — عرض آخر نسخة محفوظة غير متاحة');
+    }
+  }
+  function subscribeLive(){
+    try{
+      onSnapshot(STATE_REF,(snap)=>{
+        if(!snap.exists()) return;
+        const d=snap.data()||{};
+        stock = Array.isArray(d.stock)? d.stock: stock;
+        moves = Array.isArray(d.moves)? d.moves: moves;
+        models= Array.isArray(d.models)? d.models: models;
+        variantsMap = d.variantsMap || variantsMap;
+        initFilters();
+        fillMoveLists();
+        renderAll();
+        setStatus('ok','متصل — مزامنة حيّة');
+      },(err)=>{
+        console.warn('snapshot error', err);
+        setStatus('warn','تعذّر الاتصال — مزامنة متوقفة مؤقتًا');
+      });
+    }catch(e){}
+  }
+
+  /* Filters */
+  const filters = { q:'', model:'', year:'', dealer:'', location:'' };
+
+  function initFilters(){
+        const modelsList = uniq(stock.map(r=> clean(r.car)).filter(Boolean)).sort((a,b)=> a.localeCompare(b,'ar'));
+    modelFilter.innerHTML = '<option value="">كل السيارات</option>' + modelsList.map(m=> `<option value="${clean(m)}">${m}</option>`).join('');
+const locs = uniq(stock.map(r=> r.location || 'غير محدد')).sort((a,b)=> a.localeCompare(b,'ar'));
+    locationFilter.innerHTML = '<option value="">كل الأماكن</option><option value="__NO_AGENCY__">كل الأماكن (بدون الوكالة)</option>' +
+      locs.map(l=> `<option value="${l==='غير محدد'?'':l}">${l}</option>`).join('');
+  }
+
+  function applyFilters(rows){
+    return rows.filter(r=>{
+      if (filters.q){
+        const hay = [r.car,r.variant,r.dealer,r.extColor,r.intColor,r.modelYear,r.plate,r.location,r.vin,r.notes].join(' ').toLowerCase();
+        if (!hay.includes(filters.q.toLowerCase())) return false;
+      }
+            if (filters.model && clean(r.car) !== clean(filters.model)) return false;
+      if (filters.year && String(r.modelYear) !== String(filters.year)) return false;
+      if (filters.dealer && (!r.dealer || !r.dealer.toLowerCase().includes(filters.dealer.toLowerCase()))) return false;
+      if (filters.location) {
+        if (filters.location === '__NO_AGENCY__') {
+          if ((r.location||'').startsWith('الوكالة :')) return false;
+        } else if ((r.location||'') !== filters.location) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderSummary(filteredRows){
+    // إجمالي السيارات (بعد الفلاتر) — استبعاد: مباع تم التسليم + مباع تحت التسليم
+    const availableRows = (filteredRows || []).filter(r=>{
+      const loc = String(r.location || '');
+      return !loc.includes('مباع تم التسليم') && !loc.includes('مباع تحت التسليم');
+    });
+
+    // Like admin: totals from filtered rows (after exclusion)
+    totalCount.textContent  = (availableRows.length||0).toLocaleString('ar-SA');
+    placesCount.textContent = new Set((availableRows||[]).map(r=> clean(r.location||'غير محدد'))).size.toLocaleString('ar-SA');
+  }
+
+  function renderTable(filteredRows){
+    tb.innerHTML = '';
+
+    const rows = (filteredRows||[]).slice().sort((a,b)=>{
+      const ai = Number(a.id), bi = Number(b.id);
+      if(!Number.isNaN(ai) && !Number.isNaN(bi)) return ai - bi;
+      return clean(a.vin||'').localeCompare(clean(b.vin||''));
+    });
+
+    rows.forEach((r,idx)=>{
+      const tr = document.createElement('tr');
+      const safeNotes = (r.notes && String(r.notes).trim().length>0)
+        ? String(r.notes)
+        : '<span class="muted-text">لا توجد ملاحظات</span>';
+
+      tr.innerHTML = `
+        <td>${idx+1}</td>
+        <td>${r.car||''}</td>
+        <td>${r.variant||''}</td>
+        <td><span class="tag">${r.dealer||'-'}</span></td>
+        <td>${r.extColor||''}</td>
+        <td>${r.intColor||''}</td>
+        <td>${r.modelYear||''}</td>
+        <td>${r.plate||''}</td>
+        <td>${r.location||''}</td>
+        <td class="vin" data-vin="${r.vin||''}">${r.vin||''}</td>
+        <td class="cell-notes" data-vin="${r.vin||''}">${safeNotes}</td>
+      `;
+      tb.appendChild(tr);
+    });
+
+    visibleCount.textContent = `${rows.length} صف`;
+  }
+
+
+  function renderAll(){
+    const filtered = applyFilters(stock);
+    renderSummary(filtered);
+    renderTable(filtered);
+  }
+
+  /* Filter events */
+  searchEl.addEventListener('input', e=>{ filters.q=e.target.value.trim(); renderAll(); });
+  modelFilter.addEventListener('change', e=>{ filters.model=clean(e.target.value); renderAll(); });
+  yearFilter.addEventListener('input', e=>{ filters.year=e.target.value.trim(); renderAll(); });
+  dealerFilter.addEventListener('input', e=>{ filters.dealer=e.target.value.trim(); renderAll(); });
+  locationFilter.addEventListener('change', e=>{ filters.location=e.target.value; renderAll(); });
+
+  /* VIN copy */
+  document.addEventListener('click', (e)=>{
+    const vinEl = e.target.closest('.vin');
+    if (vinEl){
+      const vin = vinEl.getAttribute('data-vin');
+      if(vin){
+        navigator.clipboard.writeText(vin)
+          .then(()=> showToastMsg('تم نسخ رقم الهيكل'));
+      }
+    }
+  });
+
+  /* Export Excel */
+  function exportExcel(rows){
+    const header = ["م","سيارة","البيان","الوكيل","اللون الخارجي","اللون الداخلي","موديل","اللوحة","المكان","رقم الهيكل","الملاحظات"];
+    const data = [header];
+    rows.forEach(r=>{
+      data.push([r.id,r.car,r.variant,r.dealer,r.extColor,r.intColor,r.modelYear,r.plate,r.location,r.vin,r.notes||'']);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{wch:5},{wch:24},{wch:30},{wch:18},{wch:16},{wch:16},{wch:10},{wch:10},{wch:18},{wch:22},{wch:26}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+    XLSX.writeFile(wb, "mzj-inventory.xlsx");
+  }
+  document.getElementById('exportAll').addEventListener('click', ()=>{
+    const rows = applyFilters(stock).slice().sort((a,b)=> (a.id||0)-(b.id||0));
+    exportExcel(rows);
+  });
+
+  /* مودال ملاحظات */
+  function openNotesModal(vin){
+    const idx = stock.findIndex(r=> (r.vin||'').toString() === vin.toString());
+    if(idx === -1) return;
+    editingVin = vin;
+    const current = stock[idx].notes ? String(stock[idx].notes) : '';
+    notesModalInput.value = current;
+    notesModal.style.display='flex';
+  }
+  function closeNotesModal(){
+    notesModal.style.display='none';
+    editingVin = null;
+  }
+
+  document.addEventListener('click', (e)=>{
+    const cell = e.target.closest('.cell-notes');
+    if(!cell) return;
+    const vin = cell.getAttribute('data-vin') || '';
+    if(!vin) return;
+    openNotesModal(vin);
+  });
+
+  notesModalCancel.addEventListener('click', closeNotesModal);
+  notesModalClose.addEventListener('click', closeNotesModal);
+  notesModal.addEventListener('click', e=>{
+    if(e.target === notesModal) closeNotesModal();
+  });
+
+  notesModalSave.addEventListener('click', async ()=>{
+    if(!editingVin){ closeNotesModal(); return; }
+    const idx = stock.findIndex(r=> (r.vin||'').toString() === editingVin.toString());
+    if(idx === -1){ closeNotesModal(); return; }
+    const value = notesModalInput.value || '';
+    stock[idx] = { ...stock[idx], notes: value.trim() };
+    try{
+      await mzjUpdateDoc(STATE_REF, { stock });
+      showToastMsg('تم حفظ الملاحظات');
+      renderAll();
+    }catch(err){
+      console.error(err);
+      showToastMsg('تعذّر حفظ الملاحظات');
+    }
+    closeNotesModal();
+  });
+
+  /* حركة نقل السيارات — عدد مفتوح + مكان واحد "إلى" */
+  const FIXED_LOCATIONS = [
+    "المستودع : المخزون المتاح","المستودع : سيارات بها ملاحظات","المستودع : مباع تحت التسليم","المستودع : مباع تم التسليم",
+    "الوكالة : المخزون المتاح","الوكالة : سيارات بها ملاحظات","الوكالة : مباع تحت التسليم","الوكالة : مباع تم التسليم",
+    "فرع 1 الصالة : المخزون المتاح","فرع 1 الصالة : سيارات بها ملاحظات","فرع 1 الصالة : مباع تحت التسليم","فرع 1 الصالة : مباع تم التسليم",
+    "فرع 2 الملتقى : المخزون المتاح","فرع 2 الملتقى : سيارات بها ملاحظات","فرع 2 الملتقى : مباع تحت التسليم","فرع 2 الملتقى : مباع تم التسليم",
+    "فرع 3 القادسية : المخزون المتاح","فرع 3 القادسية : سيارات بها ملاحظات","فرع 3 القادسية : مباع تحت التسليم","فرع 3 القادسية : مباع تم التسليم"
+  ];
+
+  function getMoveRows(){
+    return Array.from(document.querySelectorAll('.move-row'));
+  }
+
+  function fillMoveLists(){
+    const opts = FIXED_LOCATIONS.map(l=> `<option value="${l}">${l}</option>`).join('');
+    getMoveRows().forEach(row=>{
+      const sel = row.querySelector('.move-from');
+      if(sel) sel.innerHTML = opts;
+    });
+    if(moveToGlobal){
+      moveToGlobal.innerHTML = '<option value="">اختر المكان الجديد</option>' + opts;
+    }
+  }
+
+  function renumberMoveRows(){
+    getMoveRows().forEach((row,idx)=>{
+      const titleEl = row.querySelector('.move-row-title');
+      if(titleEl) titleEl.textContent = `السيارة ${idx+1}`;
+    });
+  }
+
+  function createMoveRow(){
+    const nextIndex = getMoveRows().length + 1;
+    const row = document.createElement('div');
+    row.className = 'move-row';
+    row.innerHTML = `
+      <div class="move-row-actions">
+        <div class="move-row-title">السيارة ${nextIndex}</div>
+      </div>
+      <div class="grid grid-2">
+        <div>
+          <label>رقم الهيكل</label>
+          <input class="move-vin input" list="vinHints" placeholder="اكتب رقم الهيكل"/>
+          <div class="muted-text" style="margin-top:4px">اكتب رقم الهيكل ليتم تحديد المكان الحالي تلقائيًا.</div>
+        </div>
+        <div>
+          <label>من (محدّد تلقائيًا)</label>
+          <select class="move-from select" title="المكان الحالي"></select>
+        </div>
+      </div>
+    `;
+    moveRowsContainer.appendChild(row);
+    fillMoveLists();
+
+    const vinInput = row.querySelector('.move-vin');
+    const fromSel  = row.querySelector('.move-from');
+
+    if(vinInput){
+      vinInput.addEventListener('input', debounce(()=>{
+        updateVinSuggestionsForPrefix(vinInput.value);
+        autoFindByVinForInput(vinInput,false);
+      },150));
+    }
+    if(fromSel){
+      fromSel.disabled = false;
+    }
+  }
+
+  function renderCarDetails(rec){
+    carDetails.innerHTML=`
+      <div style="grid-column:1/-1"><b>سيارة:</b> ${rec.car??""}</div>
+      <div><b>البيان:</b> ${rec.variant??""}</div>
+      <div><b>الوكيل:</b> ${rec.dealer??""}</div>
+      <div><b>اللون الخارجي:</b> ${rec.extColor??""}</div>
+      <div><b>اللون الداخلي:</b> ${rec.intColor??""}</div>
+      <div><b>موديل:</b> ${rec.modelYear??""}</div>
+      <div><b>اللوحة:</b> ${rec.plate??""}</div>
+      <div><b>المكان:</b> ${rec.location??""}</div>
+      <div style="grid-column:1/-1"><b>رقم الهيكل:</b> ${rec.vin??""}</div>
+      <div style="grid-column:1/-1"><b>الملاحظات:</b> ${rec.notes??""}</div>`;
+    carDetailsHint.textContent = rec.vin ? `رقم الهيكل: ${rec.vin}` : 'لا يوجد رقم هيكل محفوظ لهذه السيارة.';
+    carDetailsBox.style.display='block';
+  }
+
+  function hideMoveAlert(){
+    if(moveAlert){
+      moveAlert.style.display='none';
+      moveAlertList.innerHTML='';
+    }
+  }
+  function showMoveAlert(type, title, lines){
+    if(!moveAlert) return;
+    moveAlert.className = 'move-alert ' + (type || 'info');
+    moveAlertTitle.textContent = title || 'نتيجة حركة النقل';
+    moveAlertList.innerHTML = '';
+    (lines || []).forEach(txt=>{
+      const li = document.createElement('li');
+      li.textContent = txt;
+      moveAlertList.appendChild(li);
+    });
+    moveAlert.style.display = 'flex';
+  }
+
+  function updateVinSuggestionsForPrefix(rawPrefix){
+    if(!vinHints) return;
+    const prefix = normalizeVin(rawPrefix||'');
+    if(prefix.length < 1){
+      vinHints.innerHTML = '';
+      return;
+    }
+    const set = new Set();
+    stock.forEach(r=>{
+      const v = normalizeVin(r.vin||'');
+      if(v && v.startsWith(prefix)) set.add(v);
+    });
+    const list = Array.from(set).sort().slice(0,30);
+    vinHints.innerHTML = list.map(v=>`<option value="${v}"></option>`).join('');
+  }
+
+  function autoFindByVinForInput(inp, strictMessage=false){
+    const row = inp.closest('.move-row');
+    const fromSel = row ? row.querySelector('.move-from') : null;
+    const vinRaw = (inp.value||'').trim();
+    if(!vinRaw){
+      if(fromSel){
+        fromSel.disabled=false;
+        fromSel.value='';
+      }
+      const anyVin = getMoveVinInputs().some(i=> normalizeVin(i.value));
+      if(!anyVin){
+        carDetailsBox.style.display='none';
+        moveStatus.textContent='';
+      }
+      return;
+    }
+    const norm = normalizeVin(vinRaw);
+    let match = stock.find(r => normalizeVin(r.vin) === norm);
+    if(!match && norm.length >= 8){
+      const candidates = stock.filter(r => normalizeVin(r.vin).startsWith(norm));
+      if(candidates.length === 1) match = candidates[0];
+    }
+
+    if(match){
+      renderCarDetails(match);
+      if(fromSel){
+        if(match.location){
+          fromSel.value = match.location;
+          fromSel.disabled = true;
+          moveStatus.textContent = `تم العثور على السيارة: ${match.car||''} — المكان الحالي: ${match.location||''}`;
+        }else{
+          fromSel.disabled=false;
+          fromSel.value='';
+          moveStatus.textContent = `تم العثور: ${match.car||''} — لا يوجد مكان مسجل. اختر المكان يدويًا في خانة "من".`;
+        }
+      }
+    }else{
+      if(strictMessage){
+        const msg = 'لم يتم العثور على سيارة بهذا الرقم.';
+        moveStatus.textContent = msg;
+        carDetailsBox.style.display='none';
+        showMoveAlert('error','لم يتم العثور على السيارة',[msg]);
+      }else{
+        moveStatus.textContent = '— لم يتم التعرف على السيارة بعد (أكمل رقم الهيكل).';
+      }
+    }
+  }
+
+  function getMoveVinInputs(){
+    return getMoveRows().map(r=> r.querySelector('.move-vin')).filter(Boolean);
+  }
+
+  btnFindByVin.addEventListener('click',()=>{
+    const inputs = getMoveVinInputs().filter(inp=> normalizeVin((inp.value||'').trim()));
+    if(!inputs.length){
+      const msg = 'اكتب رقم الهيكل في أي سطر أولًا.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','لا يوجد رقم هيكل',[msg]);
+      showToastMsg(msg);
+      return;
+    }
+    autoFindByVinForInput(inputs[0],true);
+  });
+
+  function updateRequirementBoxes(){
+    const toVal = (moveToGlobal.value||'').trim();
+    const isIssues = /سيارات بها ملاحظات/.test(toVal);
+    notesIssuesBox.style.display = isIssues ? 'block' : 'none';
+  }
+  moveToGlobal.addEventListener('change', updateRequirementBoxes);
+
+  btnAddMoveRow.addEventListener('click', ()=>{ createMoveRow(); });
+
+  if(btnClearMoves){
+    btnClearMoves.addEventListener('click', ()=>{
+      moveRowsContainer.innerHTML='';
+      createMoveRow();
+      moveStatus.textContent='';
+      carDetailsBox.style.display='none';
+      hideMoveAlert();
+      if(vinHints) vinHints.innerHTML='';
+      issuesNotes.value='';
+      notesIssuesBox.style.display='none';
+      moveToGlobal.value='';
+      showToastMsg('تم مسح الحركة');
+    });
+  }
+
+  btnMove.addEventListener('click', async ()=>{
+    hideMoveAlert();
+
+    const toVal = (moveToGlobal.value||'').trim();
+    const vinInputs = getMoveVinInputs();
+    const rows = vinInputs.map(inp=>({ inp, vinRaw:(inp.value||'').trim() }));
+    const rowsWithVin = rows.filter(r=> normalizeVin(r.vinRaw));
+
+    if(!rowsWithVin.length){
+      const msg = 'لم يتم إدخال أي رقم هيكل للنقل.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','لا توجد حركات نقل',[msg]);
+      showToastMsg(msg);
+      return;
+    }
+
+    if(!toVal){
+      const msg = 'اختر المكان "إلى" أولًا قبل تنفيذ النقل.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','المكان الجديد مطلوب',[msg]);
+      showToastMsg(msg);
+      return;
+    }
+
+    const goingIssuesRow    = /سيارات بها ملاحظات/.test(toVal);
+    const goingDeliveredRow = /مباع تم التسليم/.test(toVal);
+
+    const issuesText = goingIssuesRow ? (issuesNotes.value||'').trim() : '';
+
+    // لو المكان "سيارات بها ملاحظات" لازم الملاحظة تتكتب
+    if(goingIssuesRow && !issuesText){
+      const msg = 'عند النقل إلى "سيارات بها ملاحظات" يجب كتابة ملاحظة قبل تنفيذ النقل.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','الملاحظة مطلوبة',[msg]);
+      showToastMsg(msg);
+      return;
+    }
+
+    let movedCount = 0;
+    const errors = [];
+    const successLines = [];
+
+    for(const row of rowsWithVin){
+      const norm = normalizeVin(row.vinRaw);
+      const recIdx = stock.findIndex(r=> normalizeVin(r.vin) === norm);
+      if(recIdx === -1){
+        errors.push(`لم يتم العثور على سيارة برقم الهيكل: ${row.vinRaw}.`);
+        continue;
+      }
+      const rec = stock[recIdx];
+      const rowEl = row.inp.closest('.move-row');
+      const fromSel = rowEl ? rowEl.querySelector('.move-from') : null;
+      let fromVal = (fromSel && fromSel.value) ? fromSel.value.trim() : (rec.location||'').trim();
+
+      if(!fromVal){
+        errors.push(`السيارة ${rec.car||''} (${rec.vin||row.vinRaw}) لا يوجد لها مكان حالي؛ حدّد المكان يدويًا في "من".`);
+        continue;
+      }
+      if(fromVal === toVal){
+        errors.push(`السيارة ${rec.car||''} (${rec.vin||row.vinRaw}) موجودة بالفعل في نفس المكان.`);
+        continue;
+      }
+
+      if(goingDeliveredRow){
+        const history = moves.filter(m=> normalizeVin(m.vin||'') === norm);
+        const hasFullApproval = history.some(m=> m.adminApproved===true && m.financeApproved===true);
+        if(!hasFullApproval){
+          errors.push(`لا يمكن نقل ${rec.car||''} (${rec.vin||row.vinRaw}) إلى "مباع تم التسليم" قبل وجود موافقة مالية وإدارية مكتملة من الداش بورد.`);
+          continue;
+        }
+      }
+
+      const oldLoc = rec.location || fromVal;
+      rec.location = toVal;
+
+      if(goingIssuesRow && issuesText){
+        const existing = rec.notes ? String(rec.notes).trim() : '';
+        rec.notes = existing ? `${existing} — ${issuesText}` : issuesText;
+      }
+
+      const stamp = now();
+      moves.push({
+        when: stamp,
+        date: onlyDate(stamp),
+        vin: rec.vin||'',
+        car: rec.car||'',
+        from: oldLoc,
+        to: toVal,
+        id: rec.id,
+        adminApproved: null,
+        financeApproved: null,
+        issuesNotes: issuesText
+      });
+      movedCount++;
+      successLines.push(`تم نقل ${rec.car||''} (${rec.vin||row.vinRaw}) من "${oldLoc}" إلى "${toVal}".`);
+    }
+
+    if(!movedCount){
+      const title = 'لم يتم تنفيذ أي حركة نقل';
+      const lines = errors.length ? errors : ['لم يتم تنفيذ أي حركة نقل.'];
+      moveStatus.textContent = lines[0];
+      showMoveAlert('info', title, lines);
+      showToastMsg(lines[0]);
+      return;
+    }
+
+    try{
+      await mzjUpdateDoc(STATE_REF, { stock, moves });
+    }catch(e){
+      console.error(e);
+      const msg = 'تعذّر حفظ حركات النقل في قاعدة البيانات.';
+      moveStatus.textContent = msg;
+      showMoveAlert('error','خطأ في الحفظ',[msg]);
+      showToastMsg(msg);
+      return;
+    }
+
+    const summary = `تم نقل ${movedCount} سيارة بنجاح.`;
+    moveStatus.textContent = summary;
+    const allLines = [...successLines];
+    if(errors.length){
+      allLines.push('— ملاحظات على الحركات التي لم تُنفذ:');
+      errors.forEach(e=> allLines.push(e));
+    }
+    showMoveAlert(errors.length ? 'info' : 'success', 'نتيجة حركة النقل', allLines);
+    showToastMsg(summary);
+
+    carDetailsBox.style.display='none';
+
+    moveRowsContainer.innerHTML = '';
+    createMoveRow();
+
+    moveToGlobal.value = '';
+    issuesNotes.value = '';
+    notesIssuesBox.style.display = 'none';
+    if(vinHints) vinHints.innerHTML='';
+
+    renderAll();
+  });
+
+  /* Inner tab switcher */
+  innerTabs.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      innerTabs.forEach(b=> b.classList.remove('active'));
+      tabCars.classList.remove('active');
+      tabMoves.classList.remove('active');
+      btn.classList.add('active');
+      if(btn.dataset.tab === 'moves'){
+        tabMoves.classList.add('active');
+      }else{
+        tabCars.classList.add('active');
+      }
+    });
+  });
+
+  /* Keyboard helper */
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='/'){
+      e.preventDefault();
+      const el = document.getElementById('search');
+      if(el) el.focus();
+    }
+  });
+
+  setStatus('warn','جارِ الاتصال…');
+
+  // أول صف لحركة النقل
+  createMoveRow();
+</script>
+</body>
+</html>
+
+

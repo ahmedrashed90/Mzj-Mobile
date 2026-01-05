@@ -1,0 +1,2491 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MZJ Workspace — إدارة الطلبات</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+:root{
+  --brown:#3e2420;
+  --beige:#e8d6c8;
+  --cream:#fff8ef;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:#ead9cc;
+  --card:#ffffff;
+  --radius:14px;
+  --ok:#0f5132;
+  --okbg:#f3fff6;
+  --warn:#7a1010;
+  --warnbg:#fff5f5;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Tajawal', sans-serif;
+  background:var(--cream);
+  color:var(--text);
+}
+
+/* =======================
+   TOP BAR (كما طلبت)
+======================= */
+.dashboard-topbar{
+  background:#fff;
+  border-bottom:1px solid var(--beige);
+  padding:14px 20px;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.dashboard-tabs{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  white-space:nowrap;
+}
+.dashboard-tabs::-webkit-scrollbar{height:4px}
+.dashboard-tabs::-webkit-scrollbar-thumb{
+  background:#dcc3b2;
+  border-radius:10px;
+}
+.dashboard-tab{
+  padding:10px 18px;
+  border-radius:999px;
+  border:1px solid var(--beige);
+  background:#fff;
+  color:var(--brown);
+  font-size:14px;
+  font-weight:500;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+.dashboard-tab:hover{background:#f6eee7}
+.dashboard-tab.active{
+  background:var(--brown);
+  color:#fff;
+  border-color:var(--brown);
+}
+
+.container{max-width:1600px;margin:18px auto;padding:0 12px 60px}
+@media (min-width:1200px){ .container{max-width:95vw;} }
+/* توسيع صفحة الطلبات */
+#page-orders{max-width:100%;}
+#page-orders .card{max-width:100%;}
+#inner-create .table{min-width:1500px;}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:0 10px 26px rgba(62,36,32,.06);
+}
+.card-hd{
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+.card-hd h2{margin:0;font-size:16px;font-weight:900;color:var(--brown)}
+.card-bd{padding:14px 16px}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spacer{flex:1}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:999px;font-size:13px;
+  border:1px solid var(--line);background:#fff;color:var(--brown);
+}
+.small{font-size:12px;color:var(--muted)}
+
+.btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--brown);
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s ease;
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  justify-content:center;
+}
+.btn:hover{background:#f7f0ea}
+.btn.primary{background:var(--brown);border-color:var(--brown);color:#fff}
+.btn.primary:hover{filter:brightness(.95)}
+.btn.danger{background:#b42318;border-color:#b42318;color:#fff}
+.btn.danger:hover{filter:brightness(.95)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+
+.input,.select, .small-input{
+  padding:10px 12px;border-radius:12px;border:1px solid var(--line);
+  background:#fff;min-width:220px;
+  font-family:inherit;
+}
+.small-input{min-width:0;padding:8px 10px;border-radius:10px;font-size:13px}
+/* ===== Create table compact mode ===== */
+#inner-create .table th, #inner-create .table td{font-size:12px;padding:6px 8px}
+#inner-create .small-input{padding:6px 8px;font-size:12px;border-radius:8px}
+#inner-create .req-vin{width:70px}
+#inner-create .req-year{width:70px}
+#inner-create .req-ext,#inner-create .req-int{width:60px}
+#inner-create .req-location{width:250px}
+#inner-create .req-place{width:250px}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+.center{text-align:center}
+
+.hr{height:1px;background:var(--line);margin:12px 0}
+
+.alert{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--text);font-size:13px}
+.alert.err{border-color:#f2b8b5;background:var(--warnbg);color:var(--warn)}
+.alert.ok{border-color:#b7e3c5;background:var(--okbg);color:var(--ok)}
+
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+.table{width:100%;border-collapse:collapse}
+.table th,.table td{
+  padding:10px 10px;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+  vertical-align:middle;
+  background:#fff;
+}
+.table th{background:#faf6f2;color:var(--brown);font-weight:900}
+.table tr:last-child td{border-bottom:none}
+.muted{color:var(--muted)}
+
+/* Inner tabs */
+.inner-tabs{display:flex;gap:10px;flex-wrap:wrap}
+.inner-tab{
+  padding:10px 14px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;color:var(--brown);font-weight:900;cursor:pointer;
+}
+.inner-tab.active{background:var(--brown);border-color:var(--brown);color:#fff}
+
+/* Modal */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,.35);
+  display:none;align-items:center;justify-content:center;z-index:1000;padding:18px;
+}
+.modal{
+  width:min(1100px, 100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:18px;
+  border:1px solid var(--line);
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+}
+.modal-hd{
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;justify-content:space-between;
+  flex-wrap:wrap;
+}
+.modal-hd .title{font-weight:900;color:var(--brown);font-size:16px}
+.modal-bd{padding:14px 16px}
+.modal-ft{
+  padding:12px 12px;
+  border-top:1px solid var(--line);
+  background:#faf6f2;
+}
+.ft-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media (max-width:920px){.ft-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.ft-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ft-btn{width:100%;border-radius:14px;padding:12px 10px}
+
+/* Progress */
+.progress-wrap{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.progress-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.progress-row .p-title{font-weight:900;color:var(--brown);font-size:13px}
+.progress-row .p-val{color:var(--muted);font-size:12px}
+.bar{height:10px;background:#f2e8e0;border-radius:999px;overflow:hidden}
+.bar>div{height:100%;background:var(--brown);width:0%;transition:width .2s ease}
+.stage-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+@media (max-width:920px){.stage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stage{border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
+.stage .s-title{font-weight:900;color:var(--brown);font-size:12px}
+.stage .s-val{color:var(--muted);font-size:12px;margin-top:4px}
+
+/* ===== منع الاسكرول الأفقي وجعل الجدول يدخل الشاشة ===== */
+#inner-create .tableWrap{
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+#inner-create table{
+  table-layout: fixed;
+  width:100%;
+}
+
+#inner-create th,
+#inner-create td{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* تصغير الأعمدة الثانوية */
+#inner-create .req-ext,
+#inner-create .req-int,
+#inner-create .req-year{
+  max-width:60px;
+}
+
+#inner-create .req-note{
+  max-width:90px;
+}
+
+#inner-create .req-place,
+#inner-create .req-location{
+  max-width:250px;
+}
+
+/* VIN والسيارة */
+#inner-create th:nth-child(3),
+#inner-create td:nth-child(3){
+  width:90px;
+}
+
+#inner-create th:nth-child(4),
+#inner-create td:nth-child(4){
+  width:auto;
+}
+
+
+/* ===== ضبط تركيب جدول إنشاء الطلب (بدون اسكرول) ===== */
+#inner-create .tableWrap{ overflow: hidden; }
+
+/* خلي الجدول يرتب نفسه بشكل أنضف */
+#inner-create table{
+  table-layout: fixed;
+  width:100%;
+}
+
+/* الهيدر ما ينقصش (ممنوع ellipsis في العناوين) */
+#inner-create th{
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.15;
+}
+
+/* الخلايا تفضل مضغوطة لكن من غير ما تقص الهيدر */
+#inner-create td{
+  white-space: nowrap;
+}
+
+/* المدخلات تاخد عرض الخلية بالكامل */
+#inner-create .small-input,
+#inner-create .input,
+#inner-create .select{
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* توزيع أعمدة ثابت ومرتب */
+#inner-create .table th:nth-child(1), #inner-create .table td:nth-child(1){width:50px}   /* # */
+#inner-create .table th:nth-child(2), #inner-create .table td:nth-child(2){width:110px}  /* نوع */
+#inner-create .table th:nth-child(3), #inner-create .table td:nth-child(3){width:95px}   /* VIN */
+#inner-create .table th:nth-child(4), #inner-create .table td:nth-child(4){width:220px}  /* السيارة */
+#inner-create .table th:nth-child(5), #inner-create .table td:nth-child(5){width:200px}  /* الفئة */
+#inner-create .table th:nth-child(6), #inner-create .table td:nth-child(6){width:80px}   /* الخارجي */
+#inner-create .table th:nth-child(7), #inner-create .table td:nth-child(7){width:80px}   /* الداخلي */
+#inner-create .table th:nth-child(8), #inner-create .table td:nth-child(8){width:80px}   /* الموديل */
+#inner-create .table th:nth-child(9), #inner-create .table td:nth-child(9){width:250px}  /* المكان */
+#inner-create .table th:nth-child(10),#inner-create .table td:nth-child(10){width:250px} /* مكان التصوير/النقل */
+#inner-create .table th:nth-child(11),#inner-create .table td:nth-child(11){width:120px} /* ملاحظة */
+#inner-create .table th:nth-child(12),#inner-create .table td:nth-child(12){width:70px}  /* مسح */
+
+/* تحسين شكل الصف */
+#inner-create .table th, #inner-create .table td{ padding:6px 8px; }
+#inner-create .small-input{ height:30px; }
+
+/* على الشاشات الأضيق نخفي أعمدة ثانوية عشان “تركب كويس” */
+@media (max-width: 1320px){
+  #inner-create .table th:nth-child(6), #inner-create .table td:nth-child(6),
+  #inner-create .table th:nth-child(7), #inner-create .table td:nth-child(7){
+    display:none;
+  }
+}
+@media (max-width: 1180px){
+  #inner-create .table th:nth-child(8), #inner-create .table td:nth-child(8){
+    display:none;
+  }
+}
+
+
+/* ===== ضبط أحجام (السيارة / الفئة / المكان / مكان التصوير) ===== */
+/* تصغير السيارة والفئة */
+#inner-create .table th:nth-child(4),
+#inner-create .table td:nth-child(4),  /* السيارة */
+#inner-create .table th:nth-child(5),
+#inner-create .table td:nth-child(5){  /* الفئة */
+  width:180px !important;
+}
+
+/* تكبير المكان ومكان التصوير وجعلهم نفس الحجم */
+#inner-create .table th:nth-child(9),
+#inner-create .table td:nth-child(9),   /* المكان */
+#inner-create .table th:nth-child(10),
+#inner-create .table td:nth-child(10){  /* مكان التصوير */
+  width:100px !important;
+}
+
+
+/* ===== وضوح الداتا (السيارة + الفئة) ===== */
+
+/* السماح بكسر السطر للسيارة والفئة */
+#inner-create .table td:nth-child(4),
+#inner-create .table td:nth-child(5){
+  white-space: normal !important;
+  line-height: 1.35;
+}
+
+/* تكبير ارتفاع الصف تلقائيًا عند وجود نص طويل */
+#inner-create .table td{
+  vertical-align: middle;
+}
+
+/* inputs داخل السيارة والفئة تكسر سطر */
+#inner-create .table td:nth-child(4) input,
+#inner-create .table td:nth-child(5) input{
+  white-space: normal;
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* تقليل القص (ellipsis) في الأعمدة المهمة */
+#inner-create .table td{
+  text-overflow: clip;
+}
+
+/* تحسين تباعد النص */
+#inner-create .small-input{
+  line-height: 1.4;
+}
+
+
+/* ===== ضبط أحجام الأعمدة + توحيد (العنوان + المربع) ===== */
+/* ضمان إن الـ input / select يملوا الخلية */
+#inner-create .small-input,
+#inner-create .input,
+#inner-create .select{
+  width:100% !important;
+  min-width:0 !important;
+}
+
+/* توحيد عرض (السيارة) عنوان + مربع */
+#inner-create .table th:nth-child(4),
+#inner-create .table td:nth-child(4){
+  width: 240px !important;
+}
+
+/* توحيد عرض (الفئة) عنوان + مربع */
+#inner-create .table th:nth-child(5),
+#inner-create .table td:nth-child(5){
+  width: 240px !important;
+}
+
+/* تكبير الخارجي + الداخلي */
+#inner-create .table th:nth-child(6),
+#inner-create .table td:nth-child(6),
+#inner-create .table th:nth-child(7),
+#inner-create .table td:nth-child(7){
+  width: 95px !important;
+}
+
+/* تكبير المكان */
+#inner-create .table th:nth-child(9),
+#inner-create .table td:nth-child(9){
+  width: 100px !important;
+}
+
+/* تكبير مكان التصوير/النقل */
+#inner-create .table th:nth-child(10),
+#inner-create .table td:nth-child(10){
+  width: 100px !important;
+}
+
+/* تحسين قراءة السيارة والفئة بدون ما تبهدل الصف */
+#inner-create .table td:nth-child(4),
+#inner-create .table td:nth-child(5){
+  white-space: normal !important;
+  line-height: 1.35;
+}
+#inner-create .table td:nth-child(4) input,
+#inner-create .table td:nth-child(5) input{
+  white-space: normal;
+  height: auto;
+}
+
+
+/* ===== تثبيت: مسميات الأعمدة = نفس عرض مربعات الداتا + VIN كامل ===== */
+/* خريطة أعمدة إنشاء الطلب (12 عمود) */
+/* # | نوع | VIN | السيارة | الفئة | الخارجي | الداخلي | الموديل | المكان | مكان التصوير/النقل | ملاحظة | مسح */
+#inner-create .table th:nth-child(1), #inner-create .table td:nth-child(1){width:50px !important;}
+#inner-create .table th:nth-child(2), #inner-create .table td:nth-child(2){width:120px !important;}
+#inner-create .table th:nth-child(3), #inner-create .table td:nth-child(3){width:100px !important;} /* VIN أكبر */
+#inner-create .table th:nth-child(4), #inner-create .table td:nth-child(4){width:240px !important;}
+#inner-create .table th:nth-child(5), #inner-create .table td:nth-child(5){width:240px !important;}
+#inner-create .table th:nth-child(6), #inner-create .table td:nth-child(6){width:105px !important;} /* خارجي */
+#inner-create .table th:nth-child(7), #inner-create .table td:nth-child(7){width:105px !important;} /* داخلي */
+#inner-create .table th:nth-child(8), #inner-create .table td:nth-child(8){width:90px !important;}
+#inner-create .table th:nth-child(9), #inner-create .table td:nth-child(9){width:100px !important;} /* المكان أكبر */
+#inner-create .table th:nth-child(10),#inner-create .table td:nth-child(10){width:100px !important;} /* مكان التصوير أكبر */
+#inner-create .table th:nth-child(11),#inner-create .table td:nth-child(11){width:140px !important;}
+#inner-create .table th:nth-child(12),#inner-create .table td:nth-child(12){width:70px !important;}
+
+/* العناوين ما تتقصش */
+#inner-create .table th{
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* VIN ما يتقصش أبداً */
+#inner-create .table td:nth-child(3){
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+#inner-create .table td:nth-child(3) input{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+
+/* باقي الخلايا تفضل منظمة */
+#inner-create .table td{
+  overflow: hidden;
+}
+
+
+/* ===== تصغير إطار VIN + إطار (السيارة/الفئة) ومحاذاة موحدة ===== */
+
+/* نفس ارتفاع ومحاذاة كل مربعات الصف */
+#inner-create .table td{
+  vertical-align: middle !important;
+}
+
+/* صغّر VIN (الإطار نفسه) */
+#inner-create .table td:nth-child(3) input{
+  height: 30px !important;
+  padding: 5px 8px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+}
+
+/* صغّر إطار السيارة + الفئة بنفس شكل VIN (لكن يفضلوا أعرض) */
+#inner-create .table td:nth-child(4) input,
+#inner-create .table td:nth-child(5) input{
+  height: 30px !important;
+  padding: 5px 8px !important;
+  font-size: 12px !important;
+  border-radius: 8px !important;
+}
+
+/* خلي نص السيارة/الفئة يتلف (wrap) داخل نفس الإطار بدون ما يبوّظ المحاذاة */
+#inner-create .table td:nth-child(4) input,
+#inner-create .table td:nth-child(5) input{
+  white-space: normal !important;
+  line-height: 1.25 !important;
+}
+
+
+/* ===== تصغير إضافي لإطارات VIN / السيارة / الفئة ===== */
+
+/* VIN أصغر */
+#inner-create .table td:nth-child(3) input{
+  height: 30px !important;
+  padding: 4px 6px !important;
+  font-size: 11px !important;
+  border-radius: 7px !important;
+}
+
+/* السيارة + الفئة أصغر وبنفس المحاذاة */
+#inner-create .table td:nth-child(4) input,
+#inner-create .table td:nth-child(5) input{
+  height: 30px !important;
+  padding: 4px 6px !important;
+  font-size: 11px !important;
+  border-radius: 7px !important;
+  line-height: 1.2 !important;
+}
+
+/* ===== تكبير المكان + مكان التصوير ===== */
+
+/* المكان */
+#inner-create .table td:nth-child(9) input{
+  height: 30px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  border-radius: 10px !important;
+}
+
+/* مكان التصوير / النقل */
+#inner-create .table td:nth-child(10) select{
+  height: 30px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  border-radius: 10px !important;
+}
+
+/* محاذاة عمودية موحدة */
+#inner-create .table td{
+  vertical-align: middle !important;
+}
+
+
+/* ===============================
+   الحل النهائي: العناوين فوق المربعات 1:1
+   + تصغير (السيارة/الفئة)
+   + تكبير (المكان/مكان التصوير/ملاحظة)
+================================ */
+
+/* تأكيد إن الهيدر والخلية نفس العرض */
+#inner-create .table th,
+#inner-create .table td{
+  box-sizing: border-box;
+}
+
+/* توحيد عرض كل input/select مع العمود */
+#inner-create .table td input,
+#inner-create .table td select{
+  width:100% !important;
+  min-width:0 !important;
+}
+
+/* ===== السيارة + الفئة (أصغر) ===== */
+#inner-create .table th:nth-child(4),
+#inner-create .table td:nth-child(4),
+#inner-create .table th:nth-child(5),
+#inner-create .table td:nth-child(5){
+  width: 180px !important;
+}
+
+#inner-create .table td:nth-child(4) input,
+#inner-create .table td:nth-child(5) input{
+  height: 30px !important;
+  font-size: 11px !important;
+  padding: 4px 6px !important;
+  line-height: 1.2;
+}
+
+/* ===== المكان + مكان التصوير + ملاحظة (أكبر) ===== */
+#inner-create .table th:nth-child(9),
+#inner-create .table td:nth-child(9){
+  width: 150px !important;
+}
+
+#inner-create .table th:nth-child(10),
+#inner-create .table td:nth-child(10){
+  width: 150px !important;
+}
+
+#inner-create .table th:nth-child(11),
+#inner-create .table td:nth-child(11){
+  width: 200px !important;
+}
+
+#inner-create .table td:nth-child(9) input,
+#inner-create .table td:nth-child(10) select,
+#inner-create .table td:nth-child(11) input{
+  height: 30px !important;
+  font-size: 12px !important;
+  padding: 6px 10px !important;
+}
+
+/* منع قص العناوين */
+#inner-create .table th{
+  white-space: nowrap;
+  text-align: center;
+}
+
+
+/* ===== Create Table: labels فوق المربعات داخل نفس الخلية ===== */
+#inner-create thead{display:none !important;}
+#inner-create .cell{display:flex;flex-direction:column;gap:6px}
+#inner-create .cell label{font-size:12px;font-weight:700;color:var(--brown);line-height:1.1;text-align:right}
+#inner-create .cell input,#inner-create .cell select{width:100% !important;min-width:0 !important}
+#inner-create .table td{padding:10px 8px !important;vertical-align:top !important}
+#inner-create .cell.actions{align-items:center}
+#inner-create .cell.actions label{text-align:center;width:100%}
+
+
+/* ===== Topbar links (Tabs) ===== */
+.dashboard-tabs{display:flex;gap:10px;overflow-x:auto;white-space:nowrap}
+.dashboard-tabs::-webkit-scrollbar{height:4px}
+.dashboard-tabs::-webkit-scrollbar-thumb{background:#dcc3b2;border-radius:10px}
+.tab{
+  padding:10px 18px;
+  border-radius:999px;
+  border:1px solid var(--beige);
+  background:#fff;
+  color:var(--brown);
+  font-size:14px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .2s ease;
+}
+.tab:hover{background:#f6eee7}
+.tab.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+/* إلغاء اعتماد dashboard-tab */
+.dashboard-tab{display:none !important;}
+
+
+/* منع وميض تسجيل الدخول أثناء التحقق */
+body.auth-checking #loginCard{display:none !important;}
+
+
+/* إخفاء تبويبات الإدارة لغير الإدارة */
+
+
+  /* ===== Visual helper for مسئول التنفيذ ===== */
+  .row-turn td{background:#ecfdf3 !important;}
+  .turn-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid #bbf7d0;background:#ecfdf3;
+    color:#14532d;font-weight:800;font-size:12px;
+    white-space:nowrap;
+  }
+  .turn-badge.wait{
+    border-color:#fed7aa;background:#fff7ed;color:#9a3412;
+  }
+</style>
+  <link rel="stylesheet" href="./mzj-ui.css" />
+
+<style>
+  /* ===== Photoshoot Safe Refactor v4 ===== */
+  .legacy-ps .dashboard-topbar{display:none !important;}
+  .legacy-ps .topbar,
+  .legacy-ps .tabs,
+  .legacy-ps .nav-tabs,
+  .legacy-ps .header,
+  .legacy-ps header:not(.mzj-topbar){display:none !important;}
+  .legacy-ps{padding-top: 6px;}
+
+  /* Center inner tabs */
+  .legacy-ps .card-hd{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .legacy-ps .card-hd h2{margin:0; white-space:nowrap;}
+  .legacy-ps .inner-tabs{margin-inline:auto; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;}
+  .legacy-ps .inner-tab{min-width:120px;}
+
+  /* Prevent horizontal scroll + force table fit */
+  .legacy-ps .tableWrap{overflow-x:hidden !important; max-width:100% !important;}
+  .legacy-ps table.table{width:100% !important; table-layout:fixed; font-size:12px;}
+  .legacy-ps table.table th,
+  .legacy-ps table.table td{
+    padding:6px 6px !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    line-height:1.25;
+  }
+
+  /* Override inline TH widths to allow fit (keeps layout stable) */
+  .legacy-ps table.table th[style]{width:auto !important;}
+  .legacy-ps table.table th.center{width:44px !important;}
+  .legacy-ps table.table th:nth-child(2){width:92px !important;}  /* نوع */
+  .legacy-ps table.table th:nth-child(3){width:90px !important;}  /* VIN */
+
+  /* Filter inputs in header */
+  .legacy-ps table.table thead input,
+  .legacy-ps table.table thead select{
+    width:100% !important;
+    max-width:100% !important;
+    padding:6px 6px !important;
+    font-size:12px !important;
+  }
+
+  /* Make action row wrap so "ارسال الطلب" never forces overflow */
+  .legacy-ps .actionsRow, 
+  .legacy-ps .actions, 
+  .legacy-ps .toolbar{
+    flex-wrap:wrap !important;
+  }
+</style>
+
+</head>
+
+<body class="auth-checking mzj">
+
+  <!-- MZJ Unified Topbar -->
+  <header class="mzj-topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" id="mzjSidebarBtn" aria-label="القائمة"><i class="fa-solid fa-bars"></i></button>
+      <div class="brand">
+        <div class="brand-mark">MZJ</div>
+        <div class="brand-text">
+          <div class="brand-title">محمد بن ذعار العجمي للسيارات</div>
+          <div class="brand-sub">Workspace</div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <div class="mzj-breadcrumb">
+        <span class="crumb">الرئيسية</span>
+        <i class="fa-solid fa-chevron-left"></i>
+        <span class="crumb current">إدارة الطلبات</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="mzj-chip"><i class="fa-regular fa-clock"></i><span id="mzjNow">—</span></div>
+      <button class="mzj-btn mzj-btn-ghost" id="mzjThemeBtn" type="button"><i class="fa-solid fa-moon"></i><span>وضع ليلي</span></button>
+      <div class="mzj-user">
+        <div class="avatar">OP</div>
+        <div class="user-text">
+          <div class="user-name">العمليات</div>
+          <div class="user-role">Requests</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="mzj-shell" id="mzjShell">
+    <aside class="mzj-sidebar" id="mzjSidebar">
+      <div class="side-section">
+        <div class="side-title">العمليات</div>
+        <nav class="side-nav">
+          <a class="side-link tab" href="./sales.html"><i class="fa-solid fa-handshake"></i><span>تتبع المبيعات</span></a>
+        <a class="side-link tab" href="./dashboard.html"><i class="fa-solid fa-gauge"></i><span>الداش بورد</span></a>
+        <a class="side-link tab" href="./inventory.html"><i class="fa-solid fa-boxes-stacked"></i><span>المخزون</span></a>
+        <a class="side-link tab" href="./vt.html"><i class="fa-solid fa-right-left"></i><span>نقل السيارات</span></a>
+        <a class="side-link tab active" href="./photoshoot-user.html"><i class="fa-solid fa-camera"></i><span>إدارة الطلبات</span></a>
+        <a class="side-link tab" href="./cars.html"><i class="fa-solid fa-car"></i><span>كل السيارات</span></a>
+        <a class="side-link tab" href="./admin.html"><i class="fa-solid fa-shield-halved"></i><span>الإدارة</span></a>
+        <a class="side-link tab" href="./Activity.html"><i class="fa-solid fa-clipboard-list"></i><span>سجل النشاط</span></a>
+        <a class="side-link tab" href="./act.html"><i class="fa-solid fa-clipboard-list"></i><span>سجل الحركات</span></a>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="mzj-backdrop" id="mzjBackdrop"></div>
+
+    <main class="mzj-content">
+      <section class="mzj-pagehead">
+        <div class="pagehead-left">
+          <h1 class="page-title">إدارة طلبات التصوير والنقل</h1>
+          <p class="page-desc">نفس الداتا والمنطق — واجهة موحّدة.</p>
+        </div>
+      </section>
+
+      <div class="legacy legacy-ps">
+
+
+<!-- TOP BAR -->
+<div class="dashboard-topbar">
+  <div class="dashboard-tabs">
+    
+    <a class="tab" href="inventory.html">المخزون</a>
+    <a class="tab" href="dashboard.html">الداش بورد</a>
+    <a class="tab" href="vt.html">نقل السيارات</a>
+    <a class="tab active" href="photoshoot-user.html">إدارة الطلبات</a>
+    <a class="tab" href="cars.html">كل السيارات</a>
+    <a class="tab" href="Activity.html">سجل النشاط</a>
+  </div>
+</div>
+
+<div class="container">
+
+
+
+  <!-- LOGIN CARD -->
+  <div class="card" id="loginCard" style="display:none">
+    <div class="card-hd">
+      <h2>تسجيل الدخول</h2>
+      <div class="row">
+        <span class="badge" id="authState">جارٍ الاتصال…</span>
+        <span class="badge" id="roleBadge">—</span>
+        <span class="badge" id="locBadge">—</span>
+        <button class="btn" id="btnLogout" style="display:none"><i class="fa-solid fa-right-from-bracket"></i>تسجيل خروج</button>
+      </div>
+    </div>
+    <div class="card-bd">
+      <div class="row">
+        <input class="input" id="loginEmail" type="email" placeholder="البريد الإلكتروني" autocomplete="email">
+        <input class="input" id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="current-password">
+        <button class="btn primary" id="btnLogin"><i class="fa-solid fa-right-to-bracket"></i>تسجيل الدخول</button>
+      </div>
+      <div class="alert" id="loginMsg" style="display:none"></div>
+      <div class="small" style="margin-top:8px">يفتح فقط من خلال https أو localhost (مش file://).</div>
+    </div>
+  </div>
+
+  <!-- ORDERS PAGE -->
+  <div class="card" id="page-orders" style="display:none; margin-top:14px">
+    <div class="card-hd">
+      <h2>الطلبات</h2>
+      <div class="inner-tabs">
+        <button class="inner-tab active" data-inner="create">إنشاء طلب</button>
+        <button class="inner-tab" data-inner="manage">إدارة الطلبات</button>
+        <button class="inner-tab" data-inner="done">الطلبات المكتملة</button>
+      </div>
+    </div>
+
+    <!-- Create -->
+    <div class="card-bd" id="inner-create">
+      <div class="row">
+        <input class="input" id="reqBy" placeholder="مقدم الطلب" readonly>
+        <select class="select" id="reqType">
+          <option value="auto" selected>تحديد تلقائي من الصفوف</option>
+          <option value="shoot">تصوير فقط</option>
+          <option value="move">نقل فقط</option>
+        </select>
+        <button class="btn" id="btnAddRow"><i class="fa-solid fa-plus"></i>إضافة سيارة</button>
+        <button class="btn" id="btnResetRows"><i class="fa-solid fa-rotate"></i>إعادة ضبط الجدول</button>
+        <span class="spacer"></span>
+        <button class="btn primary" id="btnSubmit"><i class="fa-solid fa-paper-plane"></i>ارسال الطلب</button>
+      </div>
+
+      <div class="hr"></div>
+
+      
+
+      <div class="tableWrap" style="margin-top:10px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:60px" class="center">#</th>
+              <th style="width:120px">نوع</th>
+              <th style="width:60px">VIN</th>
+              <th>السيارة</th>
+              <th>الفئة</th>
+              <th style="width:40px">الخارجي</th>
+              <th style="width:40px">الداخلي</th>
+              <th style="width:90px" class="center">الموديل</th>
+              <th style="width:120px">المكان</th>
+              <th style="width:120px" id="placeHeader">مكان التصوير</th>
+              <th style="width:80px">ملاحظة</th>
+              <th style="width:70px" class="center">مسح</th>
+            </tr>
+          </thead>
+          <tbody id="reqRowsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Manage -->
+    <div class="card-bd" id="inner-manage" style="display:none">
+      <div class="row">
+        <select class="select" id="filterKind">
+          <option value="all">الكل</option>
+          <option value="shoot">تصوير</option>
+          <option value="move">نقل</option>
+          <option value="mixed">مختلط</option>
+        </select>
+        <input class="input" id="searchBox" placeholder="بحث: رقم الطلب / المنشئ / VIN">
+        <span class="spacer"></span>
+        <span class="badge" id="manageCount">—</span>
+      </div>
+
+      <div class="tableWrap" style="margin-top:10px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:90px">رقم</th>
+              <th style="width:90px">النوع</th>
+              <th>الحالة</th>
+              <th style="width:200px">المنشئ</th>
+              <th style="width:170px">آخر تحديث</th>
+              <th style="width:130px">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Done -->
+    <div class="card-bd" id="inner-done" style="display:none">
+      <div class="small">يعرض الطلبات المكتملة فقط.</div>
+      <div class="tableWrap" style="margin-top:10px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:90px">رقم</th>
+              <th style="width:90px">النوع</th>
+              <th style="width:200px">المنشئ</th>
+              <th style="width:170px">وقت الإنهاء</th>
+              <th style="width:130px">فتح</th>
+            </tr>
+          </thead>
+          <tbody id="doneTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARS -->
+  <div class="card" id="page-cars" style="display:none; margin-top:14px">
+    <div class="card-hd"><h2>كل السيارات</h2><span class="small">مصدر الـ Auto-fill هو stock من mzj_admin_state/v1.</span></div>
+    <div class="card-bd">
+      <div class="row">
+        <input class="input mono" id="vinLookup" placeholder="ابحث عن VIN">
+        <button class="btn" id="btnLookup"><i class="fa-solid fa-magnifying-glass"></i>بحث</button>
+        <span class="spacer"></span>
+        <span class="badge" id="stockCount">—</span>
+      </div>
+      <div class="alert" id="lookupRes" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div class="card" id="page-activity" style="display:none; margin-top:14px">
+    <div class="card-hd"><h2>سجل النشاط</h2><span class="small">مرئي للإدارة فقط</span></div>
+    <div class="card-bd">
+      <div class="small" id="activityHint">—</div>
+      <div class="tableWrap" style="margin-top:10px">
+        <table class="table">
+          <thead><tr><th style="width:180px">الوقت</th><th style="width:200px">المستخدم</th><th>الإجراء</th><th>التفاصيل</th></tr></thead>
+          <tbody id="activityTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-hd">
+      <div class="title" id="modalTitle">تفاصيل الطلب</div>
+      <div class="row">
+        <span class="badge" id="modalMeta">—</span>
+        <button class="btn" id="btnCloseModal"><i class="fa-solid fa-xmark"></i>إغلاق</button>
+      </div>
+    </div>
+
+    <div class="modal-bd">
+      <div class="progress-wrap">
+        <div class="progress-row"><div class="p-title">Progress عام</div><div class="p-val" id="overallVal">0%</div></div>
+        <div class="bar"><div id="overallBar"></div></div>
+
+        <div class="stage-grid">
+          <div class="stage"><div class="s-title">1) تم استلام الطلب</div><div class="s-val" id="s1Val">0/0 — 0%</div><div class="bar" style="margin-top:6px"><div id="s1Bar"></div></div></div>
+          <div class="stage"><div class="s-title">2) تم إرسال السيارة</div><div class="s-val" id="s2Val">0/0 — 0%</div><div class="bar" style="margin-top:6px"><div id="s2Bar"></div></div></div>
+          <div class="stage"><div class="s-title">3) تم استلام السيارة</div><div class="s-val" id="s3Val">0/0 — 0%</div><div class="bar" style="margin-top:6px"><div id="s3Bar"></div></div></div>
+          <div class="stage"><div class="s-title">4) تم الانتهاء</div><div class="s-val" id="s4Val">—</div><div class="bar" style="margin-top:6px"><div id="s4Bar"></div></div></div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="tableWrap">
+        <table class="table">
+          <thead><tr>
+            <th style="width:60px" class="center">#</th>
+            <th style="width:140px">VIN</th>
+            <th>السيارة</th>
+            <th style="width:170px">المكان</th>
+            <th style="width:170px">الوجهة</th>
+            <th style="width:110px">النوع</th>
+            <th style="width:160px">حالة التنفيذ</th>
+            <th style="width:140px">دورك الآن</th>
+            <th style="width:220px">تعديل الوجهة</th>
+          </tr></thead>
+          <tbody id="rowsTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="small" style="margin-top:10px" id="permHint">—</div>
+    </div>
+
+    <div class="modal-ft">
+      <div class="ft-grid">
+        <button class="btn ft-btn" id="btnEditReq"><i class="fa-solid fa-pen-to-square"></i>تعديل الطلب</button>
+        <button class="btn primary ft-btn" id="btnStep1">1 تم استلام الطلب</button>
+        <button class="btn primary ft-btn" id="btnStep2">2 تم إرسال السيارة</button>
+        <button class="btn primary ft-btn" id="btnStep3">3 تم استلام السيارة</button>
+        <button class="btn primary ft-btn" id="btnStep4"><i class="fa-solid fa-flag-checkered"></i>4 تم الانتهاء</button>
+        <button class="btn ft-btn" id="btnRefreshModal"><i class="fa-solid fa-rotate"></i>تحديث</button>
+      </div>
+      <div class="small" style="margin-top:8px">ترتيب التنفيذ ثابت: 1 → 2 → 3 → 4 (الإنهاء لمقدم الطلب + الإدارة).</div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase (Compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* =======================
+   CONFIG (إلزامي)
+======================= */
+const firebaseConfig = {
+     apiKey: "AIzaSyC614bGqnYf4Q-weTNemzWENTpa8DjGeHw",
+    authDomain: "mzj-agenda.firebaseapp.com",
+    projectId: "mzj-agenda",
+    storageBucket: "mzj-agenda.firebasestorage.app",
+    messagingSenderId: "834700407721",
+    appId: "1:834700407721:web:75c17665d4f032fd65cab8" // الصق config هنا (نفس مشروع mzj-agenda)
+  // apiKey: "...",
+  // authDomain: "...",
+  // projectId: "mzj-agenda",
+  // ...
+};
+
+try{ firebase.initializeApp(firebaseConfig); }catch(e){}
+
+const auth = firebase.auth();
+const db   = firebase.firestore();
+// Activity Logger: auto-capture Firestore writes (compat)
+try{
+  window.mzjActivity?.wrapCompat(firebase, db, ()=>({ uid: (currentUser&&currentUser.uid)||null, email: myEmail(), name: myName(), role: myRole() }));
+}catch(_e){}
+
+
+
+  
+// ===== Admin State (mzj_admin_state/v1) =====
+const ADMIN_STATE_DOC = db.collection('mzj_admin_state').doc('v1');
+
+function stateFieldPath(kind, requestId){
+  const k = (kind==='move') ? 'moveRequests' : 'shootRequests';
+  return `${k}.${requestId}`;
+}
+
+async function upsertRequestToState({requestId, kind, status, total, createdByEmail, createdByName, rows}){
+  const rid = String(requestId);
+  const base = {
+    id: rid,
+    kind,
+    status: status || 'تحت المتابعة',
+    total: total || (rows? rows.length : 0),
+    createdBy: createdByName || '',
+    createdByEmail: createdByEmail || '',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    admin: {},
+    notes: '',
+  };
+
+  // approvals only for move
+  if(kind === 'move'){
+    base.approvals = {
+      adminApproved: null,
+      adminNotes: '',
+      financeApproved: null,
+      financeNotes: '',
+      issuesNotes: ''
+    };
+  }
+
+  // search text
+  const vins = (rows||[]).map(r=>r.vin).filter(Boolean).join(' ');
+  base._searchText = `${rid} ${kind} ${createdByEmail||''} ${createdByName||''} ${vins}`.trim();
+
+  const sub = ADMIN_STATE_DOC.collection(kind==='move'?'moveRequests':'shootRequests').doc(rid);
+  await sub.set(base, { merge:true });
+}
+
+async function patchRequestInState(requestId, kind, patch){
+  const rid = String(requestId);
+  const sub = ADMIN_STATE_DOC.collection(kind==='move'?'moveRequests':'shootRequests').doc(rid);
+  // merge patch directly
+  patch = patch || {};
+  patch.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  await sub.set(patch, { merge:true });
+}
+
+async function deleteRequestFromState(requestId, kind){
+  const rid = String(requestId);
+  const sub = ADMIN_STATE_DOC.collection(kind==='move'?'moveRequests':'shootRequests').doc(rid);
+  try{ await sub.delete(); }catch(e){ /* ignore */ }
+}
+/* ===== Roles & Permissions ===== */
+  const ROLE_ADMIN   = 'الادارة';
+  const ROLE_IDARI   = 'اداري';
+  const ROLE_BRANCH  = 'مدراء فروع';
+
+  // 🔒 التصوير مسموح لهذا الإيميل فقط + الإدارة
+  const SHOOT_ALLOWED_EMAIL = 'an9036663@gmail.com';
+
+
+  // الدور الحالي للمستخدم
+  let currentUserRole = null;
+
+  // الأدوار المسموح لها بعمل الموافقات على طلبات النقل
+  const ADMIN_APPROVAL_ROLES   = [ROLE_ADMIN]; // موافقة الإدارة
+  const FINANCE_APPROVAL_ROLES = [ROLE_ADMIN]; // موافقة مالية (يمكن توسيعها لاحقًا)
+
+  // ✅ صلاحية عمليات إضافية لطلبات النقل (Super Move)
+  const MOVE_SUPER_EMAILS = ['coo@mzjcars.com'];
+  function isMoveSuper(){ return MOVE_SUPER_EMAILS.includes(myEmail()); }
+
+  // الصفحات المسموح بها لكل تصنيف
+  const ROLE_PAGES = {
+    [ROLE_ADMIN] : 'ALL', // الإدارة تشوف كل الصفحات
+    // الإداري: يشوف فقط الداشبورد + نقل السيارات + إدارة الطلبات + كل السيارات + المبيعات
+    [ROLE_IDARI] : ['dashboard.html','vt.html','photoshoot-user.html','cars.html','inventory.html','act.html'],
+    [ROLE_BRANCH]: ['dashboard.html']
+  };
+
+  function applyRolePermissions(){
+    const links = document.querySelectorAll('.dashboard-tabs .tab');
+    const currentPage = (location.pathname.split('/').pop() || '').toLowerCase();
+
+    links.forEach(link=>{
+      const href = (link.getAttribute('href')||'').toLowerCase();
+
+      // الإدارة تشوف الكل
+      if(ROLE_PAGES[currentUserRole] === 'ALL'){
+        link.style.display = 'inline-flex';
+        return;
+      }
+
+      // غير كده نشوف الصفحة مسموحة ولا لأ
+      if((ROLE_PAGES[currentUserRole]||[]).map(x=>x.toLowerCase()).includes(href)){
+        link.style.display = 'inline-flex';
+      }else{
+        link.style.display = 'none';
+      }
+    });
+
+    // حماية إضافية: لو دخل صفحة مش مسموح له (حتى لو كتب اللينك يدويًا)
+    if(ROLE_PAGES[currentUserRole] !== 'ALL'){
+      const allowed = (ROLE_PAGES[currentUserRole]||[]).map(x=>x.toLowerCase());
+      if(currentPage && !allowed.includes(currentPage)){
+        alert('غير مصرح لك بدخول هذه الصفحة');
+        window.location.href = allowed[0] || 'dashboard.html';
+      }
+    }
+  }
+
+// refs
+const authState = document.getElementById('authState');
+const roleBadge = document.getElementById('roleBadge');
+const locBadge  = document.getElementById('locBadge');
+const btnLogout = document.getElementById('btnLogout');
+
+const loginMsg  = document.getElementById('loginMsg');
+const loginCard = document.getElementById('loginCard');
+
+const pageOrders   = document.getElementById('page-orders');
+const pageCars     = document.getElementById('page-cars');
+const pageActivity = document.getElementById('page-activity');
+
+const innerTabs = document.querySelectorAll('.inner-tab');
+const innerCreate = document.getElementById('inner-create');
+const innerManage = document.getElementById('inner-manage');
+const innerDone   = document.getElementById('inner-done');
+
+const reqBy = document.getElementById('reqBy');
+const reqRowsBody = document.getElementById('reqRowsBody');
+const placeHeaderEl = document.getElementById('placeHeader');
+const btnAddRow = document.getElementById('btnAddRow');
+const btnResetRows = document.getElementById('btnResetRows');
+const btnSubmit = document.getElementById('btnSubmit');
+const reqType = document.getElementById('reqType');
+
+const filterKind = document.getElementById('filterKind');
+const searchBox  = document.getElementById('searchBox');
+const ordersTbody = document.getElementById('ordersTbody');
+const doneTbody   = document.getElementById('doneTbody');
+const manageCount = document.getElementById('manageCount');
+
+const vinLookup = document.getElementById('vinLookup');
+const btnLookup = document.getElementById('btnLookup');
+const lookupRes = document.getElementById('lookupRes');
+const stockCount = document.getElementById('stockCount');
+
+const activityHint = document.getElementById('activityHint');
+const activityTbody = document.getElementById('activityTbody');
+
+// Modal
+const modalBackdrop = document.getElementById('modalBackdrop');
+const btnCloseModal = document.getElementById('btnCloseModal');
+const btnRefreshModal = document.getElementById('btnRefreshModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMeta  = document.getElementById('modalMeta');
+const rowsTbody  = document.getElementById('rowsTbody');
+const permHint   = document.getElementById('permHint');
+
+const overallVal = document.getElementById('overallVal');
+const overallBar = document.getElementById('overallBar');
+const s1Val = document.getElementById('s1Val');
+const s2Val = document.getElementById('s2Val');
+const s3Val = document.getElementById('s3Val');
+const s4Val = document.getElementById('s4Val');
+const s1Bar = document.getElementById('s1Bar');
+const s2Bar = document.getElementById('s2Bar');
+const s3Bar = document.getElementById('s3Bar');
+const s4Bar = document.getElementById('s4Bar');
+
+const btnEditReq = document.getElementById('btnEditReq');
+const btnStep1 = document.getElementById('btnStep1');
+const btnStep2 = document.getElementById('btnStep2');
+const btnStep3 = document.getElementById('btnStep3');
+const btnStep4 = document.getElementById('btnStep4');
+
+// state
+let currentUser = null;
+let userProfile = null; // from user/{uid}
+let stock = [];         // from mzj_admin_state/v1 -> data.stock
+let unsubState = null;
+let unsubRequests = null;
+let unsubDone = null;
+let unsubActivity = null;
+
+let openRequestId = null;
+let openRequestDoc = null;
+let openRows = [];
+let unsubOpenReq = null;
+let unsubOpenRows = null;
+let editMode = false;
+
+// helpers
+function showAlert(type, text){
+  loginMsg.style.display='block';
+  loginMsg.className = 'alert ' + (type==='err' ? 'err' : 'ok');
+  loginMsg.textContent = text;
+}
+function normalizeVin(v){
+  return String(v||"").trim().toUpperCase().replace(/\s+/g,'');
+}
+
+// ===== Media Specs Key Helpers (for media.html نقص التصوير) =====
+function cleanStr(v){
+  return String(v ?? '')
+    .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+function normArabicBasic(s){
+  return cleanStr(s)
+    .replace(/[أإآ]/g,'ا')
+    .replace(/ة/g,'ه')
+    .replace(/\s*\|\s*/g,'|')
+    .toLowerCase();
+}
+function buildSpecKey(rec){
+  const parts = [
+    cleanStr(rec.car),
+    cleanStr(rec.variant),
+    cleanStr(rec.extColor),
+    cleanStr(rec.intColor),
+    cleanStr(rec.modelYear)
+  ].map(p => p || '-');
+  return parts.join(' | ');
+}
+function docIdFromKeyNorm(keyNorm){
+  // Firestore doc id must not contain "/"
+  return (keyNorm || '').replaceAll('/', '_').slice(0, 900);
+}
+function todayISO(){
+  try{
+    const d = new Date();
+    // Saudi date (YYYY-MM-DD) based on local browser time; acceptable for shootDate
+    return d.toISOString().slice(0,10);
+  }catch(e){ return ''; }
+}
+async function markShootRowsDoneInMediaSpecs(rows){
+  // rows: request rows (subcollection docs)
+  const shootRows = (rows||[]).filter(r => (r.kind||'') === 'shoot');
+  if(!shootRows.length) return;
+
+  const batch = db.batch();
+  const now = firebase.firestore.FieldValue.serverTimestamp();
+  const dateStr = todayISO();
+
+  shootRows.forEach(r=>{
+    const keyHuman = buildSpecKey(r);
+    const keyNorm  = normArabicBasic(keyHuman);
+    const docId    = docIdFromKeyNorm(keyNorm);
+    if(!docId) return;
+
+    const ref = db.collection('media_specs').doc(docId);
+    // لا نمسح أي حقول أخرى — Merge فقط
+    batch.set(ref, {
+      shoot: 'نعم',
+      shootDate: dateStr,
+      updatedAt: now,
+      updatedBy: myEmail() || ''
+    }, { merge:true });
+  });
+
+  await batch.commit();
+}
+function myEmail(){ return currentUser ? (currentUser.email||"") : ""; }
+function myUid(){ return currentUser ? (currentUser.uid||"") : ""; }
+function myName(){ return (userProfile && userProfile.name) ? userProfile.name : (currentUser ? (currentUser.displayName||currentUser.email||"") : ""); }
+function myRole(){ return userProfile ? (userProfile.role||"") : ""; }
+function myLocations(){ return (userProfile && Array.isArray(userProfile.locations)) ? userProfile.locations : []; }
+function isAdmin(){ return myRole()==="الادارة"; }
+function isIdari(){ return myRole()==="اداري"; }
+
+function canCreateShoot(){
+  // التصوير: الإدارة + الإيميل المحدد فقط
+  return isAdmin() || (myEmail() === SHOOT_ALLOWED_EMAIL);
+}
+
+function enforceReqTypeOptions(){
+  // إخفاء خيارات التصوير من الـ dropdown الرئيسي لو المستخدم غير مصرح
+  if(!reqType) return;
+  const optShoot = reqType.querySelector('option[value="shoot"]');
+  const optAuto  = reqType.querySelector('option[value="auto"]');
+
+  if(!canCreateShoot()){
+    if(optShoot) optShoot.remove();
+    // لو كان مختار تصوير قبل كده لأي سبب
+    if(reqType.value === 'shoot'){
+      reqType.value = optAuto ? 'auto' : 'move';
+    }
+  }
+}
+
+function enforceRowKindOptions(tr){
+  if(!tr) return;
+  const sel = tr.querySelector('.req-kind');
+  if(!sel) return;
+
+  if(!canCreateShoot()){
+    const shootOpt = sel.querySelector('option[value="shoot"]');
+    if(shootOpt) shootOpt.remove();
+    // لو الصف كان تصوير، حوّله نقل
+    if(sel.value === 'shoot') sel.value = 'move';
+  }
+}
+
+function applyShootUIRestrictions(){
+  // تطبيق القيود على كل واجهة الإنشاء
+  enforceReqTypeOptions();
+  Array.from(reqRowsBody.querySelectorAll('tr')).forEach(enforceRowKindOptions);
+  updatePlaceLabelsAll();
+  updatePlaceHeader();
+}
+
+function includesLoc(loc){ return myLocations().includes(loc); }
+function fmtTs(ts){
+  if(!ts) return "—";
+  try{
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    // عرض بتوقيت السعودية (Asia/Riyadh)
+    return d.toLocaleString('en-GB', {
+      timeZone: 'Asia/Riyadh',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(',', '');
+  }catch(e){
+    return "—";
+  }
+}
+function kindLabel(k){ return k==="shoot" ? "تصوير" : (k==="move" ? "نقل" : (k==="mixed"?"مختلط":"—")); }
+function statusLabel(req){ return (req && req.finishedAt) ? "مكتملة" : "تحت المتابعة"; }
+function isCreator(req){
+  const em = (req && req.createdByEmail) ? req.createdByEmail : "";
+  return em && em === myEmail();
+}
+
+
+function canDeleteRequest(req){
+  if(isAdmin()) return true;
+  return isCreator(req) && !(req && req.finishedAt);
+}
+
+async function deleteRequestById(requestId){
+  const id = String(requestId||"");
+  if(!id) return;
+  if(!confirm("تأكيد حذف الطلب؟ سيتم حذف الطلب وكل الصفوف التابعة له.")) return;
+
+  const reqRef = db.collection("requests").doc(id);
+      const reqSnap = await reqRef.get();
+    const req = reqSnap.exists ? (reqSnap.data()||{}) : {};
+try{
+    const rowsSnap = await reqRef.collection("rows").get();
+    const batch = db.batch();
+    rowsSnap.forEach(d=>batch.delete(d.ref));
+    batch.delete(reqRef);
+    await batch.commit();
+
+  // ✅ تحديث المخزون فورًا عند المرحلة 3 لطلبات النقل (Move)
+  // صفحة المخزون تقرأ من mzj_admin_state/v1.stock، لذلك نحدّثه هنا مباشرة
+  if(stepNo===3){
+    const moveRows = targets.filter(r => (r.kind||'') === 'move');
+    if(moveRows.length){
+      try{
+        await updateStockLocationsAfterMoveFinish(moveRows);
+      }catch(err){
+        console.warn('update stock after step3 failed', err);
+      }
+    }
+  }
+
+
+  // ✅ تحديث المخزون فورًا عند المرحلة 3 لطلبات النقل (Move)
+  // صفحة المخزون تقرأ من mzj_admin_state/v1.stock، لذلك نحدّثه هنا مباشرة
+  if(stepNo===3){
+    const moveRows = targets.filter(r => (r.kind||'') === 'move');
+    if(moveRows.length){
+      try{
+        await updateStockLocationsAfterMoveFinish(moveRows);
+      }catch(err){
+        console.warn('update stock after step3 failed', err);
+      }
+    }
+  }
+
+    // remove from mzj_admin_state/v1 maps
+    try{ await deleteRequestFromState(id, (req && req.kind) ? req.kind : 'shoot'); }catch(e){}
+
+
+    await logAction("حذف طلب", `تم حذف الطلب #${id} بواسطة ${myName()}`);
+    alert("تم حذف الطلب ✅");
+  }catch(e){
+    console.error(e);
+    alert("حصل خطأ أثناء حذف الطلب.");
+  }
+}
+
+function rowSourcePlace(r){ return r.fromLocation || r.location || ""; }
+function rowDestPlace(r){
+  if(r.kind==="shoot") return r.shootPlace || "";
+  return r.toLocation || "";
+}
+
+function setProfileBadges(){
+  authState.textContent = currentUser ? "مسجل ✅" : "غير مسجل";
+  roleBadge.textContent = userProfile ? ("الدور: " + (myRole()||"—")) : "—";
+  locBadge.textContent  = userProfile ? ("الأماكن: " + (myLocations().length||0)) : "—";
+}
+
+function showPage(page){
+  pageOrders.style.display = (page==='orders') ? 'block' : 'none';
+  pageCars.style.display = (page==='cars') ? 'block' : 'none';
+  pageActivity.style.display = (page==='activity') ? 'block' : 'none';
+}
+
+document.querySelectorAll('.dashboard-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>showPage(tab.dataset.page));
+});
+
+function showInner(which){
+  innerTabs.forEach(t=>t.classList.remove('active'));
+  document.querySelector('.inner-tab[data-inner="'+which+'"]')?.classList.add('active');
+  innerCreate.style.display = (which==='create')?'block':'none';
+  innerManage.style.display = (which==='manage')?'block':'none';
+  innerDone.style.display   = (which==='done')  ?'block':'none';
+}
+innerTabs.forEach(t=>t.addEventListener('click', ()=>showInner(t.dataset.inner)));
+
+function openModal(){
+  modalBackdrop.style.display='flex';
+  modalBackdrop.setAttribute('aria-hidden','false');
+}
+function closeModal(){
+  modalBackdrop.style.display='none';
+  modalBackdrop.setAttribute('aria-hidden','true');
+  editMode=false;
+  openRequestId=null; openRequestDoc=null; openRows=[];
+  rowsTbody.innerHTML='';
+  if(unsubOpenReq){unsubOpenReq();unsubOpenReq=null;}
+  if(unsubOpenRows){unsubOpenRows();unsubOpenRows=null;}
+}
+btnCloseModal.addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', e=>{ if(e.target===modalBackdrop) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && modalBackdrop.style.display==='flex') closeModal(); });
+
+/* =======================
+   Stock (Auto-fill source)
+======================= */
+function watchAdminState(){
+  if(unsubState){unsubState();unsubState=null;}
+  unsubState = db.collection("mzj_admin_state").doc("v1").onSnapshot(snap=>{
+    const data = snap.exists ? (snap.data()||{}) : {};
+    stock = Array.isArray(data.stock) ? data.stock : [];
+    stockCount.textContent = "stock: " + stock.length;
+  });
+}
+
+function updatePlaceHeader(){
+  // If any row kind = move => header = مكان النقل else مكان التصوير
+  const kinds = Array.from(reqRowsBody.querySelectorAll('.req-kind')).map(el=>el.value);
+  const anyMove = kinds.includes('move');
+  placeHeaderEl.textContent = anyMove ? "مكان النقل" : "مكان التصوير";
+}
+
+
+function updatePlaceLabelForRow(tr){
+  if(!tr) return;
+  const kind = tr.querySelector('.req-kind')?.value || 'shoot';
+  const lbl  = tr.querySelector('.req-place-label');
+  if(lbl) lbl.textContent = (kind === 'move') ? 'مكان النقل' : 'مكان التصوير';
+}
+function updatePlaceLabelsAll(){
+  Array.from(reqRowsBody.querySelectorAll('tr')).forEach(updatePlaceLabelForRow);
+}
+/* =======================
+   Create Request (8 rows)
+======================= */
+const SHOOT_PLACES = [
+  "المستودع : المخزون المتاح",
+  "المستودع : سيارات بها ملاحظات",
+  "المستودع : مباع تحت التسليم",
+  "فرع 1 الصالة : المخزون المتاح",
+  "فرع 1 الصالة : سيارات بها ملاحظات",
+  "فرع 1 الصالة : مباع تحت التسليم",
+  "فرع 2 الملتقى : المخزون المتاح",
+  "فرع 2 الملتقى : سيارات بها ملاحظات",
+  "فرع 2 الملتقى : مباع تحت التسليم",
+  "فرع 3 القادسية : المخزون المتاح",
+  "فرع 3 القادسية : سيارات بها ملاحظات",
+  "فرع 3 القادسية : مباع تحت التسليم",
+];
+
+function renumberRows(){
+  Array.from(reqRowsBody.querySelectorAll('tr')).forEach((tr, idx)=>{
+    const c = tr.querySelector('td.center');
+    if(c) c.textContent = String(idx+1);
+  });
+}
+
+function addFormRow(prefill={}){
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="center">1</td>
+
+    <td>
+      <div class="cell">
+        <label>نوع</label>
+        <select class="small-input req-kind">
+          <option value="shoot" selected>طلب تصوير</option>
+          <option value="move">طلب نقل</option>
+        </select>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>VIN</label>
+        <input class="small-input mono req-vin" placeholder="VIN">
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>السيارة</label>
+        <input class="small-input req-car" readonly>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>الفئة</label>
+        <input class="small-input req-variant" readonly>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>الخارجي</label>
+        <input class="small-input req-ext" readonly>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>الداخلي</label>
+        <input class="small-input req-int" readonly>
+      </div>
+    </td>
+
+    <td class="center">
+      <div class="cell">
+        <label>الموديل</label>
+        <input class="small-input center req-year" readonly>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>المكان</label>
+        <input class="small-input req-location" readonly>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label class="req-place-label">مكان التصوير</label>
+        <select class="small-input req-place">
+          <option value="">— اختر —</option>
+          ${SHOOT_PLACES.map(p=>`<option value="${p}">${p}</option>`).join("")}
+        </select>
+      </div>
+    </td>
+
+    <td>
+      <div class="cell">
+        <label>ملاحظة</label>
+        <input class="small-input req-note" placeholder="اختياري">
+      </div>
+    </td>
+
+    <td class="center">
+      <div class="cell actions">
+        <label>مسح</label>
+        <button class="btn danger btnRemoveRow" title="حذف الصف"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </td>
+`;
+  reqRowsBody.appendChild(tr);
+  // 🔒 إخفاء خيار التصوير لغير المصرح لهم
+  enforceRowKindOptions(tr);
+  // ضبط عنوان المكان داخل الصف حسب نوع الطلب
+  updatePlaceLabelForRow(tr);
+  updatePlaceHeader();
+
+  // Prefill if provided
+  if(prefill.kind) tr.querySelector('.req-kind').value = prefill.kind;
+  if(prefill.vin) tr.querySelector('.req-vin').value = prefill.vin;
+  if(prefill.place) tr.querySelector('.req-place').value = prefill.place;
+  if(prefill.note) tr.querySelector('.req-note').value = prefill.note;
+
+  reqBy.value = myName();
+  updatePlaceHeader();
+  renumberRows();
+}
+
+function buildFormRows(){
+  // default: 1 row only
+  reqRowsBody.innerHTML='';
+  addFormRow();
+}
+
+btnAddRow.addEventListener('click', ()=>addFormRow());
+btnResetRows.addEventListener('click', ()=>{ buildFormRows(); applyShootUIRestrictions(); });
+reqRowsBody.addEventListener('change', (e)=>{
+  if(e.target.closest('.req-kind')){ updatePlaceHeader(); updatePlaceLabelForRow(e.target.closest('tr')); }
+});
+
+// Remove row (or clear if it's the last row)
+reqRowsBody.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.btnRemoveRow');
+  if(!btn) return;
+  const tr = btn.closest('tr');
+
+  // لو ده آخر صف: امسح البيانات بدل الحذف
+  const totalRows = reqRowsBody.querySelectorAll('tr').length;
+  if(totalRows<=1){
+    tr.querySelectorAll('input,select').forEach(el=>{
+      if(el.classList.contains('req-kind')) el.value='shoot';
+      else if(el.classList.contains('req-place')) el.value='';
+      else el.value='';
+    });
+  }else{
+    tr.remove();
+  }
+  updatePlaceHeader();
+  renumberRows();
+});
+
+// Auto fill on blur of VIN (✅ requirement)
+reqRowsBody.addEventListener('blur', (e)=>{
+  const vinInput = e.target.closest('.req-vin');
+  if(!vinInput) return;
+  const norm = normalizeVin(vinInput.value);
+  vinInput.value = norm;
+  if(!norm) return;
+
+  const rec = stock.find(r=> normalizeVin(r.vin)===norm);
+  const tr = vinInput.closest('tr');
+
+  if(rec){
+    tr.querySelector(".req-car").value      = rec.car || "";
+    tr.querySelector(".req-variant").value  = rec.variant || "";
+    tr.querySelector(".req-ext").value      = rec.extColor || "";
+    tr.querySelector(".req-int").value      = rec.intColor || "";
+    tr.querySelector(".req-year").value     = rec.modelYear || "";
+    tr.querySelector(".req-location").value = rec.location || "";
+  }else{
+    tr.querySelector(".req-car").value      = "";
+    tr.querySelector(".req-variant").value  = "";
+    tr.querySelector(".req-ext").value      = "";
+    tr.querySelector(".req-int").value      = "";
+    tr.querySelector(".req-year").value     = "";
+    tr.querySelector(".req-location").value = "";
+  }
+}, true);
+
+function collectRows(){
+  const rows=[];
+  reqRowsBody.querySelectorAll('tr').forEach(tr=>{
+    const vin = normalizeVin(tr.querySelector('.req-vin')?.value||'');
+    if(!vin) return;
+    const kind = tr.querySelector('.req-kind')?.value || 'shoot';
+    const car = tr.querySelector('.req-car')?.value||'';
+    const variant = tr.querySelector('.req-variant')?.value||'';
+    const extColor = tr.querySelector('.req-ext')?.value||'';
+    const intColor = tr.querySelector('.req-int')?.value||'';
+    const modelYear = tr.querySelector('.req-year')?.value||'';
+    const location = tr.querySelector('.req-location')?.value||'';
+    const place = tr.querySelector('.req-place')?.value||'';
+    const note = tr.querySelector('.req-note')?.value||'';
+
+    rows.push({
+      vin, kind, car, variant, extColor, intColor, modelYear,
+      fromLocation: location,
+      location,
+      shootPlace: kind==='shoot' ? place : "",
+      toLocation: kind==='move' ? place : "",
+      note,
+      steps: {}
+    });
+  });
+  return rows;
+}
+
+function computeRequestKind(rows){
+  const forced = reqType.value;
+  if(forced==='shoot' || forced==='move') return forced;
+  const kinds = Array.from(new Set(rows.map(r=>r.kind)));
+  if(kinds.length===1) return kinds[0];
+  return 'mixed';
+}
+
+async function logAction(action, details){
+  try{
+    await db.collection("mzj_activity_log").add({
+      action, details,
+      userEmail: myEmail(),
+      userName: myName(),
+      ts: firebase.firestore.FieldValue.serverTimestamp(),
+      date: new Date().toISOString().slice(0,10),
+    });
+  }catch(e){}
+}
+
+btnSubmit.addEventListener('click', async ()=>{
+  const rows = collectRows();
+  if(!rows.length){
+    alert("اكتب على الأقل VIN واحد.");
+    return;
+  }
+
+  // 🔒 قيود الصلاحيات (إنشاء الطلب)
+  const hasShoot = rows.some(r => r.kind === 'shoot');
+  if (hasShoot && !canCreateShoot()){
+    alert("غير مصرح لك بإنشاء طلبات تصوير.");
+    return;
+  }
+
+  const hasMove = rows.some(r => r.kind === 'move');
+  if (hasMove && !(isAdmin() || isIdari())){
+    alert("طلبات النقل متاحة للإداري فقط.");
+    return;
+  }
+  // Ensure place selected for each row
+  const missing = rows.some(r=>{
+    const dest = r.kind==='shoot' ? r.shootPlace : r.toLocation;
+    return !dest;
+  });
+  if(missing){
+    alert("لازم تختار مكان التصوير/النقل لكل VIN.");
+    return;
+  }
+
+  btnSubmit.disabled = true;
+  try{
+    const kind = computeRequestKind(rows);
+    // Create request
+    const reqRef = await db.collection("requests").add({
+      kind,
+      status: "تحت المتابعة",
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdByUid: myUid(),
+      createdByEmail: myEmail(),
+      createdByName: myName(),
+      total: rows.length
+    });
+
+        // Mirror summary into mzj_admin_state/v1.{moveRequests|shootRequests}
+    await upsertRequestToState({requestId: reqRef.id, kind, status:'تحت المتابعة', total: rows.length, createdByEmail: myEmail(), createdByName: myName(), rows});
+
+// Write rows as subcollection (docId = VIN to avoid duplicates)
+    const batch = db.batch();
+    rows.forEach(r=>{
+      const rowId = r.vin; // stable
+      const rowRef = reqRef.collection("rows").doc(rowId);
+      batch.set(rowRef, {
+        ...r,
+        __vinLower: r.vin.toLowerCase(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, {merge:true});
+    });
+    await batch.commit();
+
+    await logAction("إنشاء طلب", `تم إنشاء طلب (${kind}) — عدد VINs: ${rows.length}`);
+
+    alert("تم إنشاء الطلب ✅");
+    buildFormRows();
+  applyShootUIRestrictions();
+    showInner('manage');
+  }catch(e){
+    console.error(e);
+    alert("حصل خطأ أثناء إنشاء الطلب.");
+  }finally{
+    btnSubmit.disabled = false;
+  }
+});
+
+/* =======================
+   Permissions + Progress
+======================= */
+function canDoStep(row, stepNo){
+  // الإدارة: كل الصلاحيات
+  if(isAdmin()) return true;
+
+  // الإداري فقط
+  if(!isIdari()) return false;
+
+  const src = rowSourcePlace(row);   // مكان السيارة الحالي (المصدر)
+  const dst = rowDestPlace(row);     // الوجهة (مكان التصوير أو مكان النقل)
+
+  // ✅ المرحلة 1 و 2: مسؤول المصدر فقط (نفس مكان السيارة)
+  if(stepNo===1 || stepNo===2) return includesLoc(src);
+
+  // ✅ المرحلة 3 تختلف حسب نوع الصف:
+  // - نقل: "استلام السيارة" = منشئ الطلب (الصالة التي طلبت) فقط
+  // - تصوير: "استلام السيارة المطلوبة للتصوير" = مسؤول الوجهة (مكان التصوير) فقط
+  if(stepNo===3){
+    if((row.kind||'') === 'move'){
+      // ✅ طلب نقل: منشئ الطلب أو Super Move (مثل COO) فقط
+      return isCreator(openRequestDoc) || isMoveSuper(); // منشئ الطلب / COO
+    }
+    return includesLoc(dst); // تصوير
+  }
+
+  return false;
+}
+
+function stageText(row){
+  const r=!!row.steps?.received?.at;
+  const s=!!row.steps?.sent?.at;
+  const c=!!row.steps?.carReceived?.at;
+  if(!r&&!s&&!c) return "لم يبدأ";
+  if(r&&!s) return "تم استلام الطلب";
+  if(r&&s&&!c) return "تم إرسال السيارة";
+  if(r&&s&&c) return "تم استلام السيارة";
+  return "تحت المتابعة";
+}
+
+function calcProgress(rows, req){
+  const total=rows.length||0;
+  const s1=rows.filter(r=>r.steps?.received?.at).length;
+  const s2=rows.filter(r=>r.steps?.sent?.at).length;
+  const s3=rows.filter(r=>r.steps?.carReceived?.at).length;
+  const done=req&&req.finishedAt?1:0;
+
+  const s1p=total?Math.round((s1/total)*100):0;
+  const s2p=total?Math.round((s2/total)*100):0;
+  const s3p=total?Math.round((s3/total)*100):0;
+  const s4p=done?100:0;
+
+  const totalSteps=total*3+1;
+  const completedSteps=s1+s2+s3+(done?1:0);
+  const overall=totalSteps?Math.round((completedSteps/totalSteps)*100):0;
+
+  return {total,s1,s2,s3,done,s1p,s2p,s3p,s4p,overall};
+}
+
+function renderProgress(){
+  const p=calcProgress(openRows, openRequestDoc);
+  overallVal.textContent=p.overall+"%"; overallBar.style.width=p.overall+"%";
+  s1Val.textContent=`${p.s1}/${p.total} — ${p.s1p}%`; s1Bar.style.width=p.s1p+"%";
+  s2Val.textContent=`${p.s2}/${p.total} — ${p.s2p}%`; s2Bar.style.width=p.s2p+"%";
+  s3Val.textContent=`${p.s3}/${p.total} — ${p.s3p}%`; s3Bar.style.width=p.s3p+"%";
+  s4Val.textContent=(openRequestDoc&&openRequestDoc.finishedAt)?"مكتمل ✅":"غير مكتمل"; s4Bar.style.width=p.s4p+"%";
+
+  const canFinish = (p.total>0 && p.s3===p.total) && (isAdmin() || isCreator(openRequestDoc)) && !(openRequestDoc&&openRequestDoc.finishedAt);
+  btnStep4.disabled = !canFinish;
+
+  // ✅ زر تعديل الطلب: ظاهر للإدارة فقط، ومسموح حتى لو الطلب مكتمل/منتهي
+  if(btnEditReq){
+    btnEditReq.style.display = isAdmin() ? 'inline-flex' : 'none';
+    btnEditReq.disabled = !isAdmin();
+  }
+  btnEditReq.innerHTML = editMode ? '<i class="fa-solid fa-floppy-disk"></i>حفظ تعديل الطلب' : '<i class="fa-solid fa-pen-to-square"></i>تعديل الطلب';
+
+  permHint.textContent = `صلاحيتك: ${isAdmin()?"الادارة":(isIdari()?"اداري":"—")} — الإداري يعمل فقط على الأماكن المرتبطة بحسابه.`;
+}
+
+function renderRowsTable(){
+  rowsTbody.innerHTML='';
+  openRows.forEach((row,idx)=>{
+    const tr=document.createElement('tr');
+    const src=rowSourcePlace(row);
+    const dst=rowDestPlace(row);
+
+    // ✅ تحديد المرحلة التالية + هل هي دور المستخدم الحالي؟
+    const nextStep = (!row.steps?.received?.at) ? 1 : (!row.steps?.sent?.at) ? 2 : (!row.steps?.carReceived?.at) ? 3 : 0;
+    const myTurn = nextStep ? canDoStep(row, nextStep) : false;
+    if(myTurn) tr.classList.add('row-turn');
+
+    tr.innerHTML = `
+      <td class="center">${idx+1}</td>
+      <td class="mono">${row.vin||row.__id||"—"}</td>
+      <td>${row.car||"—"}</td>
+      <td class="muted">${src||"—"}</td>
+      <td class="muted">${dst||"—"}</td>
+      <td>${kindLabel(row.kind)}</td>
+      <td>${stageText(row)}</td>
+      <td>${myTurn ? '<span class="turn-badge">دورك الآن</span>' : (nextStep? '<span class="turn-badge wait">بانتظار مسؤول المرحلة</span>' : '—')}</td>
+    `;
+
+    const editTd=document.createElement('td');
+    if(editMode){
+      const sel=document.createElement('select');
+      sel.className='select';
+      sel.style.minWidth='200px';
+
+      const current = (row.kind==='shoot') ? (row.shootPlace||"") : (row.toLocation||"");
+      const opts = Array.from(new Set([current, ...SHOOT_PLACES, ...myLocations()])).filter(Boolean);
+
+      opts.forEach(o=>{
+        const op=document.createElement('option');
+        op.value=o; op.textContent=o;
+        if(o===current) op.selected=true;
+        sel.appendChild(op);
+      });
+      sel.dataset.rowId = row.__id || row.vin;
+      sel.dataset.kind  = row.kind || 'shoot';
+      editTd.appendChild(sel);
+    }else{
+      editTd.textContent="—";
+      editTd.className='muted';
+    }
+
+    tr.appendChild(editTd);
+    rowsTbody.appendChild(tr);
+  });
+}
+
+async function applyStep(stepNo){
+  if(!openRequestId) return;
+  const key = stepNo===1 ? "received" : (stepNo===2 ? "sent" : "carReceived");
+  const targets = openRows.filter(r=>canDoStep(r,stepNo) && !r.steps?.[key]?.at);
+
+  if(!targets.length){
+    alert("لا توجد VINs مسموح بها لتنفيذ هذه المرحلة (أو منفذة بالفعل).");
+    return;
+  }
+
+  // enforce order per VIN
+  const violates = targets.some(r=>{
+    if(stepNo===2) return !r.steps?.received?.at;
+    if(stepNo===3) return !r.steps?.sent?.at;
+    return false;
+  });
+  if(violates){
+    alert("لا يمكن تنفيذ المرحلة قبل إتمام المرحلة السابقة لنفس VIN.");
+    return;
+  }
+
+  const reqRef = db.collection("requests").doc(String(openRequestId));
+  const batch = db.batch();
+  const now = firebase.firestore.FieldValue.serverTimestamp();
+
+  targets.forEach(row=>{
+    const rowId = row.__id || row.vin;
+    const rowRef = reqRef.collection("rows").doc(String(rowId));
+    const stepObj = { at: now, byUid: myUid(), byEmail: myEmail(), byName: myName() };
+    batch.set(rowRef, { steps: { [key]: stepObj }, updatedAt: now }, { merge:true });
+
+    // ✅ ملاحظة مهمة:
+// لا نغيّر مكان السيارة عند "تم إرسال السيارة" (المرحلة 2)
+// تغيير المكان يتم فقط عند "تم استلام السيارة" (المرحلة 3)
+    if(stepNo===3){
+      const newLoc = rowDestPlace(row);
+      if(newLoc) batch.set(rowRef, { location: newLoc }, { merge:true });
+    }
+  });
+
+  batch.set(reqRef, { updatedAt: now }, { merge:true });
+  await batch.commit();
+    await logAction("تحديث مرحلة طلب", `تم تحديث المرحلة ${stepNo} في الطلب (${(openRequestDoc&&openRequestDoc.kind)||""}) | عدد السيارات: ${targets.length} | الطلب #${openRequestId}`);
+
+
+  await logAction(
+    stepNo===1 ? "تم استلام الطلب" : (stepNo===2 ? "تم إرسال السيارة" : "تم استلام السيارة"),
+    `طلب #${openRequestId} — مرحلة ${stepNo} — عدد ${targets.length}`
+  );
+}
+
+
+async function updateStockLocationsAfterMoveFinish(rows){
+  // تحديث مكان السيارة الفعلي داخل stock (mzj_admin_state/v1) بعد إتمام طلب نقل
+  if(!rows || !rows.length) return;
+  const stateRef = db.collection("mzj_admin_state").doc("v1");
+
+  // ⚠️ ملاحظة: لا نغيّر normalizeVin العامة عشان ما نكسر أي منطق تاني.
+  // هنا فقط بنعمل مطابقة VIN مرنة ضد مشكلة الأصفار (مثال: 008562 vs 8562).
+  const normSimple = (v)=>String(v||"").trim().toUpperCase().replace(/\s+/g,'');
+  const stripZeros = (s)=>normSimple(s).replace(/^0+/, '');
+  const vinMatch = (a,b)=>{
+    const A = normSimple(a), B = normSimple(b);
+    if(!A || !B) return false;
+    if(A===B) return true;
+    const A2 = stripZeros(A), B2 = stripZeros(B);
+    if(!A2 || !B2) return false;
+    return (A2===B2) || A.endsWith(B2) || B.endsWith(A2);
+  };
+
+  await db.runTransaction(async (tx)=>{
+    const snap = await tx.get(stateRef);
+    const data = snap.exists ? (snap.data()||{}) : {};
+    const arr = Array.isArray(data.stock) ? data.stock.slice() : [];
+
+    // VIN (مرن) -> location
+    const byVin = new Map();
+    rows.forEach(r=>{
+      const vRaw = r.vin || r.__id || "";
+      const v = normSimple(vRaw);
+      if(!v) return;
+      // آخر مكان فعلي بعد النقل = الوجهة (toLocation) أو location
+      const newLoc = r.location || rowDestPlace(r) || r.toLocation || "";
+      if(newLoc) byVin.set(v, newLoc);
+    });
+
+    if(!byVin.size) return;
+
+    let changed = false;
+    for(let i=0;i<arr.length;i++){
+      const rec = arr[i] || {};
+      const recVin = rec.vin || "";
+      if(!recVin) continue;
+
+      // دور على تطابق VIN (بما فيها الأصفار)
+      let matchedKey = null;
+      for(const k of byVin.keys()){
+        if(vinMatch(recVin, k)){ matchedKey = k; break; }
+      }
+      if(!matchedKey) continue;
+
+      const newLoc = byVin.get(matchedKey);
+      if(rec.location !== newLoc){
+        arr[i] = { ...rec, location: newLoc };
+        changed = true;
+      }
+    }
+    if(changed){
+      tx.set(stateRef, { stock: arr }, { merge:true });
+    }
+  });
+}
+
+async function finishRequest(){
+  const p = calcProgress(openRows, openRequestDoc);
+  if(!(p.total>0 && p.s3===p.total)){
+    alert("لا يمكن الإنهاء قبل اكتمال “تم استلام السيارة” لكل VIN.");
+    return;
+  }
+  if(!(isAdmin() || isCreator(openRequestDoc) || isMoveSuper())){
+    alert("ليس لديك صلاحية لإنهاء الطلب.");
+    return;
+  }
+  if(openRequestDoc && openRequestDoc.finishedAt){
+    alert("الطلب مكتمل بالفعل.");
+    return;
+  }
+
+  const reqRef = db.collection("requests").doc(String(openRequestId));
+  await reqRef.set({
+    finishedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    finishedByEmail: myEmail(),
+    finishedByName: myName(),
+    status: "مكتملة",
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  }, { merge:true });
+
+  // ✅ ثبّت المكان النهائي للسيارة داخل stock (mzj_admin_state/v1)
+  // سواء كان الطلب نقل أو تصوير — المكان النهائي = الوجهة المختارة في الطلب
+  try{ await updateStockLocationsAfterMoveFinish(openRows); }catch(e){ console.error(e); }
+
+  // ✅ ربط طلب التصوير بـ (نواقص التصوير) في media.html
+  // عند الإنهاء: نحاول نعلّم التركيبات داخل media_specs كـ (تم تصويره)
+  // + كحل احتياطي: نسجل docIds داخل الطلب نفسه عشان media.html يقدر يعتبرها (تم تصويره) حتى لو قواعد Firestore منعت الكتابة على media_specs.
+  let shootDocIds = [];
+  try{
+    shootDocIds = (openRows||[])
+      .filter(r => (r.kind||'') === 'shoot')
+      .map(r=>{
+        const keyHuman = buildSpecKey(r);
+        const keyNorm  = normArabicBasic(keyHuman);
+        return docIdFromKeyNorm(keyNorm);
+      })
+      .filter(Boolean);
+  }catch(e){ shootDocIds = []; }
+
+  let mediaSpecsUpdated = false;
+  try{
+    await markShootRowsDoneInMediaSpecs(openRows);
+    mediaSpecsUpdated = true;
+  }catch(e){
+    console.warn('markShootRowsDoneInMediaSpecs failed', e);
+  }
+
+  // سجلّها على الطلب دائمًا (Merge) — خفيف وما يأثر على أي منطق تاني
+  try{
+    await reqRef.set({
+      shootDoneDocIds: Array.from(new Set(shootDocIds)),
+      shootDoneAt: firebase.firestore.FieldValue.serverTimestamp(),
+      shootDoneViaMediaSpecs: mediaSpecsUpdated ? 'yes' : 'no'
+    }, { merge:true });
+  }catch(e){
+    console.warn('save shootDoneDocIds failed', e);
+  }
+
+  // لو فشل تحديث media_specs، نطلع تنبيه واضح بدل ما الموضوع يبان إنه اشتغل
+  if(!mediaSpecsUpdated){
+    try{ showAlert('err', 'تم إنهاء الطلب ✅ لكن لم نستطع تحديث حالة التصوير في صفحة الميديا (صلاحيات/قواعد). تم تسجيل التحديث داخل الطلب كحل احتياطي.'); }catch(e){}
+  }
+
+
+await logAction("تم الانتهاء", `تم إنهاء الطلب #${openRequestId} بواسطة ${myName()}`);
+}
+
+btnStep1.addEventListener('click', ()=>applyStep(1));
+btnStep2.addEventListener('click', ()=>applyStep(2));
+btnStep3.addEventListener('click', ()=>applyStep(3));
+btnStep4.addEventListener('click', finishRequest);
+
+btnRefreshModal.addEventListener('click', ()=>{ renderRowsTable(); renderProgress(); });
+
+btnEditReq.addEventListener('click', async ()=>{
+  if(!openRequestId) return;
+
+  // الإدارة فقط
+  if(!isAdmin()){
+    alert('غير مصرح لك بتعديل الطلب.');
+    return;
+  }
+
+  if(!editMode){
+    editMode=true;
+    renderRowsTable(); renderProgress();
+    return;
+  }
+
+  // ✅ يسمح بالتعديل حتى لو الطلب بدأ/انتهى (حسب طلب حسام)
+
+  const selects = rowsTbody.querySelectorAll('select[data-row-id]');
+  const reqRef = db.collection("requests").doc(String(openRequestId));
+  const batch = db.batch();
+  const now = firebase.firestore.FieldValue.serverTimestamp();
+
+  selects.forEach(sel=>{
+    const rowId = sel.dataset.rowId;
+    const kind  = sel.dataset.kind;
+    const newDest = sel.value;
+    const rowRef = reqRef.collection("rows").doc(String(rowId));
+    if(kind==='shoot') batch.set(rowRef, { shootPlace:newDest, updatedAt: now }, { merge:true });
+    else batch.set(rowRef, { toLocation:newDest, updatedAt: now }, { merge:true });
+  });
+
+  batch.set(reqRef, { updatedAt: now }, { merge:true });
+  await batch.commit();
+
+  // ✅ لو تعديل الوجهة لطلبات النقل (move) حدّث المخزون فورًا
+  try{
+    const moveUpdates = [];
+    selects.forEach(sel=>{
+      const rowId = sel.dataset.rowId;
+      const kind  = sel.dataset.kind;
+      if(kind !== "move") return;
+      const rowObj = openRows.find(r=> String(r.__id||r.vin||"") === String(rowId));
+      const vin = rowObj ? (rowObj.vin||rowObj.__id||"") : rowId;
+      const toLocation = sel.value;
+      if(vin && toLocation){
+        moveUpdates.push({ kind:"move", vin, toLocation });
+      }
+    });
+    if(moveUpdates.length){
+      await updateStockLocationsAfterMoveFinish(moveUpdates);
+    }
+  }catch(e){
+    console.warn("admin edit -> stock update skipped", e);
+  }
+
+  await logAction("تعديل الطلب", `تم تعديل وجهات الطلب #${openRequestId} بواسطة ${myName()}`);
+
+  editMode=false;
+});
+
+/* =======================
+   Open Request (Realtime)
+======================= */
+async function openRequest(requestId){
+  openRequestId = String(requestId);
+  editMode = false;
+
+  const reqRef = db.collection("requests").doc(String(requestId));
+
+  if(unsubOpenReq){unsubOpenReq();unsubOpenReq=null;}
+  if(unsubOpenRows){unsubOpenRows();unsubOpenRows=null;}
+
+  unsubOpenReq = reqRef.onSnapshot(snap=>{
+    if(!snap.exists) return;
+    openRequestDoc = snap.data() || {};
+    modalTitle.textContent = `تفاصيل الطلب #${requestId}`;
+    modalMeta.textContent = `${kindLabel(openRequestDoc.kind)} — ${statusLabel(openRequestDoc)}`;
+    renderProgress();
+  });
+
+  unsubOpenRows = reqRef.collection("rows").onSnapshot(snap=>{
+    openRows=[];
+    snap.forEach(doc=>{
+      const d = doc.data() || {};
+      d.__id = doc.id;
+      openRows.push(d);
+    });
+    openRows.sort((a,b)=>String(a.vin||a.__id).localeCompare(String(b.vin||b.__id)));
+    renderRowsTable();
+    renderProgress();
+  });
+
+  openModal();
+}
+
+/* =======================
+   Lists (Manage + Done)
+======================= */
+function passesSearch(req, q){
+  q = String(q||"").trim().toLowerCase();
+  if(!q) return true;
+  const id = String(req.__id||"");
+  const creator = String(req.createdByName||req.createdByEmail||"");
+  // also match any VIN by cached field if exists
+  const vins = Array.isArray(req.vins) ? req.vins.join(' ') : '';
+  return id.toLowerCase().includes(q) || creator.toLowerCase().includes(q) || vins.toLowerCase().includes(q);
+}
+
+function renderManage(all){
+  const kind = filterKind.value;
+  const q = searchBox.value || "";
+  let list = all.filter(r=>!r.finishedAt);
+  if(kind!=="all") list = list.filter(r=>r.kind===kind);
+  if(q.trim()) list = list.filter(r=>passesSearch(r,q));
+
+  list.sort((a,b)=>{
+    const at = (a.updatedAt&&a.updatedAt.toMillis)?a.updatedAt.toMillis():0;
+    const bt = (b.updatedAt&&b.updatedAt.toMillis)?b.updatedAt.toMillis():0;
+    return bt-at;
+  });
+
+  manageCount.textContent = `تحت المتابعة: ${list.length}`;
+  ordersTbody.innerHTML='';
+  list.forEach(req=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>#${req.__id}</b></td>
+      <td>${kindLabel(req.kind)}</td>
+      <td>${statusLabel(req)}</td>
+      <td class="muted">${req.createdByName||req.createdByEmail||"—"}</td>
+      <td class="muted">${fmtTs(req.updatedAt||req.createdAt)}</td>
+      <td><button class="btn primary" data-open="${req.__id}"><i class="fa-solid fa-up-right-from-square"></i>فتح</button>
+${canDeleteRequest(req) ? `<button class="btn danger" data-del="${req.__id}" style="margin-right:6px"><i class="fa-solid fa-trash"></i>حذف</button>` : ``}</td>
+    `;
+    tr.querySelector('[data-open]').addEventListener('click', ()=>openRequest(req.__id));
+    const delBtn = tr.querySelector('[data-del]');
+    if(delBtn){ delBtn.addEventListener('click', ()=>deleteRequestById(req.__id)); }
+
+    ordersTbody.appendChild(tr);
+  });
+}
+
+function renderDone(all){
+  const list = all.filter(r=>!!r.finishedAt).sort((a,b)=>{
+    const at=(a.finishedAt&&a.finishedAt.toMillis)?a.finishedAt.toMillis():0;
+    const bt=(b.finishedAt&&b.finishedAt.toMillis)?b.finishedAt.toMillis():0;
+    return bt-at;
+  });
+
+  doneTbody.innerHTML='';
+  list.forEach(req=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>#${req.__id}</b></td>
+      <td>${kindLabel(req.kind)}</td>
+      <td class="muted">${req.createdByName||req.createdByEmail||"—"}</td>
+      <td class="muted">${fmtTs(req.finishedAt)}</td>
+      <td><button class="btn primary" data-open="${req.__id}">فتح</button></td>
+    `;
+    tr.querySelector('[data-open]').addEventListener('click', ()=>openRequest(req.__id));
+    const delBtn = tr.querySelector('[data-del]');
+    if(delBtn){ delBtn.addEventListener('click', ()=>deleteRequestById(req.__id)); }
+
+    doneTbody.appendChild(tr);
+  });
+}
+
+function watchRequests(){
+  if(unsubRequests){unsubRequests();unsubRequests=null;}
+  if(unsubDone){unsubDone();unsubDone=null;}
+
+  unsubRequests = db.collection("requests").onSnapshot(snap=>{
+    const all=[];
+    snap.forEach(doc=>{
+      const d=doc.data()||{};
+      d.__id=doc.id;
+      all.push(d);
+    });
+    renderManage(all);
+    renderDone(all);
+  });
+}
+filterKind.addEventListener('change', ()=>{ /* list re-rendered by snapshot; use cached? */ });
+searchBox.addEventListener('input', ()=>{ /* list re-rendered by snapshot; use cached? */ });
+
+/* =======================
+   Activity Log (Admin only)
+======================= */
+function watchActivity(){
+  if(unsubActivity){unsubActivity();unsubActivity=null;}
+  if(!isAdmin()){
+    activityHint.textContent="هذا القسم مرئي للإدارة فقط.";
+    activityTbody.innerHTML='';
+    return;
+  }
+  activityHint.textContent="آخر 50 حركة.";
+  unsubActivity = db.collection("mzj_activity_log").orderBy("ts","desc").limit(50).onSnapshot(snap=>{
+    activityTbody.innerHTML='';
+    snap.forEach(doc=>{
+      const d=doc.data()||{};
+      const tr=document.createElement('tr');
+      tr.innerHTML = `
+        <td class="muted">${fmtTs(d.ts)}</td>
+        <td class="muted">${(d.userName||d.userEmail||"—")}</td>
+        <td>${d.action||"—"}</td>
+        <td class="muted">${d.details||"—"}</td>
+      `;
+      activityTbody.appendChild(tr);
+    });
+  });
+}
+
+/* =======================
+   Cars lookup (stock)
+======================= */
+btnLookup.addEventListener('click', ()=>{
+  const v = normalizeVin(vinLookup.value);
+  vinLookup.value = v;
+  if(!v) return;
+  const rec = stock.find(r=>normalizeVin(r.vin)===v);
+  lookupRes.style.display='block';
+  if(rec){
+    lookupRes.className='alert ok';
+    lookupRes.textContent = `✅ ${rec.car||"—"} — ${rec.variant||"—"} — ${rec.modelYear||"—"} | ${rec.location||"—"}`;
+  }else{
+    lookupRes.className='alert err';
+    lookupRes.textContent = "⛔ لا يوجد VIN مطابق داخل stock.";
+  }
+});
+
+/* =======================
+   Auth
+======================= */
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  const email = (document.getElementById('loginEmail').value||"").trim();
+  const pass  = (document.getElementById('loginPass').value||"").trim();
+  if(!email || !pass){
+    showAlert('err','اكتب البريد وكلمة المرور.');
+    return;
+  }
+  try{
+    await auth.signInWithEmailAndPassword(email, pass);
+    showAlert('ok','تم تسجيل الدخول ✅');
+  }catch(e){
+    console.error(e);
+    showAlert('err','فشل تسجيل الدخول: ' + (e.code||''));
+  }
+});
+btnLogout.addEventListener('click', async ()=>{ await auth.signOut(); });
+
+async function loadUserProfile(u){
+  const snap = await db.collection("user").doc(u.uid).get();
+  return snap.exists ? (snap.data()||{}) : null;
+}
+
+auth.onAuthStateChanged(async (u)=>{
+  document.body.classList.remove('auth-checking');
+  document.body.classList.remove('is-admin');
+  document.body.classList.remove('not-admin');
+
+  currentUser = u || null;
+
+  if(!u){
+    userProfile=null;
+    loginCard.style.display='block';
+    btnLogout.style.display='none';
+    setProfileBadges();
+
+  document.body.classList.add(isAdmin() ? 'is-admin' : 'not-admin');
+    pageOrders.style.display='none';
+    pageCars.style.display='none';
+    pageActivity.style.display='none';
+    showPage('orders');
+    if(unsubRequests){unsubRequests();unsubRequests=null;}
+    if(unsubActivity){unsubActivity();unsubActivity=null;}
+    if(unsubState){unsubState();unsubState=null;}
+    return;
+  }
+
+  btnLogout.style.display='inline-flex';
+  userProfile = await loadUserProfile(u);
+  setProfileBadges();
+
+  
+  currentUserRole = myRole();
+  applyRolePermissions();
+document.body.classList.add(isAdmin() ? 'is-admin' : 'not-admin');
+
+  // Show main pages
+  // لا نعرض كارت تسجيل الدخول للمستخدم المسجل
+  loginCard.style.display='none';
+  pageOrders.style.display='block';
+  showPage('orders');
+  showInner('create');
+  buildFormRows();
+
+  watchAdminState();
+  watchRequests();
+  watchActivity();
+});
+</script>
+
+  <script src="./mzj-ui.js"></script>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

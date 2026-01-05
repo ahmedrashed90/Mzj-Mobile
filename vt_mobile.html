@@ -1,0 +1,1121 @@
+
+
+
+
+
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<link rel="icon" type="image/x-icon" href="assets/favicon.png">
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>نقل السيارات — MZJ Cars</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+  :root{
+    --brown:#3e2420; --beige:#bc8f74; --cream:#fff8ef; --text:#1f2937; --muted:#6b7280;
+    --line:#e5e7eb; --line-strong:#d1d5db; --table-head:#fafafa;
+    --card:#fff; --radius:14px; --ok:#16a34a; --danger:#ef4444; --info:#0ea5e9;
+    --shadow:0 10px 24px rgba(0,0,0,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--cream);color:var(--text);font-family:"Tajawal",system-ui,Arial}
+
+  /* Topbar + tabs + auth badge */
+  .topbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid var(--line)}
+  .topbar-inner{max-width:1240px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--brown),#2a1613);
+    display:grid;place-items:center;color:#fff;font-weight:800}
+  .brand h1{margin:0;font-size:18px;color:var(--brown)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start}
+  .tab{padding:8px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;text-decoration:none;color:inherit;font-weight:800;font-size:13px}
+  .tab.active{background:var(--brown);border-color:var(--brown);color:#fff}
+  .status-badge{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:12px;padding:6px 10px;font-size:12px}
+  .dot{width:10px;height:10px;border-radius:999px;background:#f59e0b}
+  .dot.ok{background:var(--ok)} .dot.err{background:var(--danger)} .dot.warn{background:#f59e0b}
+
+  /* Buttons */
+  .btn{position:relative;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:700;display:inline-flex;gap:8px;align-items:center;transition:.15s;font-size:13px}
+  .btn:hover{transform:translateY(-1px)} .btn:active{transform:translateY(0)}
+  .btn-primary{background:var(--brown);border-color:var(--brown);color:#fff}
+  .btn-beige{background:var(--beige);border-color:var(--beige);color:#fff}
+  .btn-ghost{background:#fff}
+  .btn-danger{background:var(--danger);border-color:var(--danger);color:#fff}
+  .btn-outline{background:#fff;border:1px solid var(--brown);color:var(--brown)}
+
+  /* Layout */
+  .container{max-width:1240px;margin:18px auto;padding:0 16px 48px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+  .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:12px;flex-wrap:wrap}
+  .section-title{display:flex;align-items:center;gap:8px;margin:0}
+  .section-title svg{width:20px;height:20px;color:var(--brown)}
+  .hint{color:var(--muted);font-size:12px}
+
+  /* Grid */
+  .grid{display:grid;gap:12px}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .grid-2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:1080px){ .grid-4{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:860px){ .grid-4,.grid-3{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:620px){ .grid-4,.grid-3,.grid-2{grid-template-columns:1fr} }
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+  /* حركة النقل: صفوف متعددة */
+  .move-row{border:1px dashed #e5e7eb;border-radius:10px;padding:8px 10px;background:#fffbf7}
+  .move-row-title{font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600}
+
+  /* إشعار حركة النقل */
+  .move-alert{
+    margin-top:10px;
+    padding:10px 12px;
+    border-radius:12px;
+    display:none;
+    align-items:flex-start;
+    gap:10px;
+    font-size:13px;
+  }
+  .move-alert .icon{
+    margin-top:3px;
+    font-size:16px;
+  }
+  .move-alert .title{
+    font-weight:800;
+    margin-bottom:4px;
+    font-size:13.5px;
+  }
+  .move-alert ul{
+    margin:0;
+    padding-right:18px;
+    list-style:disc;
+  }
+  .move-alert.success{
+    background:#ecfdf3;
+    border:1px solid #bbf7d0;
+    color:#14532d;
+  }
+  .move-alert.error{
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    color:#991b1b;
+  }
+  .move-alert.info{
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    color:#1d4ed8;
+  }
+
+  .copyable{cursor:pointer;text-decoration:underline;text-decoration-style:dotted}
+
+  .move-row-title{
+    font-weight:600;
+    margin-bottom:4px;
+    color:var(--brown);
+  }
+  .move-notes{
+    width:100%;
+    min-height:48px;
+    resize:vertical;
+  }
+
+  .notes-col{
+    display:none;
+  }
+
+  /* بطاقة عرض بيانات السيارة */
+  .table-like{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;font-size:13px}
+  .table-like b{color:var(--brown);}
+
+  /* Auth */
+  .auth-wrap{min-height:60vh;display:grid;place-items:center;padding:24px}
+  .auth-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px;max-width:420px;width:96%}
+  .auth-card h2{margin:0 0 10px;color:var(--brown)}
+  .auth-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  label{font-weight:800;margin-bottom:6px;display:block;color:var(--brown);font-size:13px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none;transition:.15s;font-family:"Tajawal",system-ui,Arial;font-size:13px}
+  input:focus,select:focus,textarea:focus{border-color:var(--beige);box-shadow:0 0 0 3px rgba(188,143,116,.15)}
+
+  /* Toast */
+  .toast{position:fixed;bottom:16px;right:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.25);display:none;z-index:60;font-size:13px}
+  .toast.ok{background:var(--ok)} .toast.info{background:var(--info)} .toast.err{background:var(--danger)}
+
+  /* Checklist box (لو احتجتها مستقبلًا) */
+  .checklist{border:1px dashed var(--beige);border-radius:12px;padding:12px;background:#fff8ef}
+  .checklist h4{margin:0 0 8px 0;color:var(--brown);font-size:14px}
+  .check-row{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start}
+  .check-row label{margin:0;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+</style>
+<style id="noFlash">
+  html{background:#fff8ef;}
+  body{opacity:0;}
+</style>
+  <link rel="stylesheet" href="./mzj-ui.css" />
+
+<style>
+  /* ===== VT Safe Refactor: hide legacy topbar/tabs (keep DOM for JS) ===== */
+  .legacy-vt .topbar,
+  .legacy-vt .tabs,
+  .legacy-vt .nav-tabs,
+  .legacy-vt .header,
+  .legacy-vt header:not(.mzj-topbar){display:none !important;}
+  .legacy-vt{padding-top: 6px;}
+</style>
+
+</head>
+<body class="mzj">
+
+  <!-- MZJ Unified Topbar -->
+  <header class="mzj-topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" id="mzjSidebarBtn" aria-label="القائمة"><i class="fa-solid fa-bars"></i></button>
+      <div class="brand">
+        <div class="brand-mark">MZJ</div>
+        <div class="brand-text">
+          <div class="brand-title">محمد بن ذعار العجمي للسيارات</div>
+          <div class="brand-sub">Workspace</div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <div class="mzj-breadcrumb">
+        <span class="crumb">الرئيسية</span>
+        <i class="fa-solid fa-chevron-left"></i>
+        <span class="crumb current">نقل السيارات</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="mzj-chip"><i class="fa-regular fa-clock"></i><span id="mzjNow">—</span></div>
+      <button class="mzj-btn mzj-btn-ghost" id="mzjThemeBtn" type="button"><i class="fa-solid fa-moon"></i><span>وضع ليلي</span></button>
+      <div class="mzj-user">
+        <div class="avatar">VT</div>
+        <div class="user-text">
+          <div class="user-name">نقل السيارات</div>
+          <div class="user-role">Operations</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="mzj-shell" id="mzjShell">
+    <aside class="mzj-sidebar" id="mzjSidebar">
+      <div class="side-section">
+        <div class="side-title">العمليات</div>
+        <nav class="side-nav">
+          <a class="side-link tab" href="./sales.html"><i class="fa-solid fa-handshake"></i><span>تتبع المبيعات</span></a>
+        <a class="side-link tab" href="./dashboard.html"><i class="fa-solid fa-gauge"></i><span>الداش بورد</span></a>
+        <a class="side-link tab" href="./inventory.html"><i class="fa-solid fa-boxes-stacked"></i><span>المخزون</span></a>
+        <a class="side-link tab active" href="./vt.html"><i class="fa-solid fa-right-left"></i><span>نقل السيارات</span></a>
+        <a class="side-link tab" href="./photoshoot-user.html"><i class="fa-solid fa-camera"></i><span>إدارة الطلبات</span></a>
+        <a class="side-link tab" href="./cars.html"><i class="fa-solid fa-car"></i><span>كل السيارات</span></a>
+        <a class="side-link tab" href="./admin.html"><i class="fa-solid fa-shield-halved"></i><span>الإدارة</span></a>
+        <a class="side-link tab" href="./Activity.html"><i class="fa-solid fa-clipboard-list"></i><span>سجل النشاط</span></a>
+        <a class="side-link tab" href="./act.html"><i class="fa-solid fa-clipboard-list"></i><span>سجل الحركات</span></a>
+
+        </nav>
+      </div>
+    </aside>
+
+    <div class="mzj-backdrop" id="mzjBackdrop"></div>
+
+    <main class="mzj-content">
+      <section class="mzj-pagehead">
+        <div class="pagehead-left">
+          <h1 class="page-title">نقل السيارات</h1>
+          <p class="page-desc">نفس الداتا والمنطق — واجهة موحّدة.</p>
+        </div>
+      </section>
+
+      <div class="legacy legacy-vt">
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo" title="MZJ">MZJ</div>
+      <div>
+        <h1>لوحة نقل السيارات</h1>
+        <small class="hint">مجموعة محمد بن ذعار العجمي للسيارات</small>
+      </div>
+    </div>
+    <div class="tabs">
+      <a class="tab" href="admin.html">الإدارة</a>
+      <a class="tab" href="inventory.html">المخزون</a>
+      <a class="tab" href="dashboard.html">الداش بورد</a>
+      <a class="tab active" href="vt.html">نقل السيارات</a>
+      <a class="tab" href="photoshoot-user.html">إدارة الطلبات</a>
+      <a class="tab" href="cars.html">كل السيارات</a>
+      <a class="tab" href="Activity.html">سجل النشاط</a>
+    </div>
+    <div class="row">
+      <div class="status-badge"><span class="dot warn" id="connDot"></span><span id="connText">جارِ الاتصال…</span></div>
+      <button class="btn btn-ghost" id="btnSignOut" style="display:none"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Gate -->
+<div class="auth-wrap" id="authGate">
+  <div class="auth-card">
+    <h2>تسجيل الدخول</h2>
+    <label for="email">البريد الإلكتروني</label>
+    <input id="email" placeholder="you@example.com" type="email"/>
+    <label for="password" style="margin-top:8px">كلمة المرور</label>
+    <input id="password" placeholder="••••••••" type="password"/>
+    <div class="auth-actions">
+      <button class="btn btn-primary" id="btnLogin">تسجيل الدخول</button>
+      <button class="btn btn-outline" id="btnSignup">إنشاء حساب</button>
+    </div>
+    <p class="hint" id="authHint" style="margin-top:10px"></p>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none">
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <div class="section-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 10l5-5 5 5"></path><path d="M7 14l5 5 5-5"></path></svg>
+          <h2 style="margin:0">حركة نقل السيارات (برقم الهيكل)</h2>
+        </div>
+        <div class="row" style="gap:8px;align-items:center;flex-wrap:wrap">
+          <label style="margin:0">إلى</label>
+          <select id="moveToGlobal" title="المكان الجديد"></select>
+        </div>
+      </div>
+
+      <!-- زر إضافة صفوف نقل -->
+      <div class="row" style="margin:8px 0 12px;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-ghost" id="btnAddMoveRow" type="button">
+          <i class="fa-solid fa-plus"></i> إضافة حركة أخرى
+        </button>
+      </div>
+
+      <!-- صفوف النقل المتعددة -->
+      <div class="grid" id="moveRowsContainer" style="gap:10px"></div>
+
+      <!-- datalist للاقتراحات -->
+      <datalist id="vinHints"></datalist>
+
+      <!-- Checklist مباع تحت التسليم (مخفية حاليًا - ممكن تستخدمها مستقبلًا) -->
+      <div class="checklist" id="underDeliveryBox" style="display:none; margin-top:10px">
+        <h4>المتطلبات عند النقل إلى <b>مباع تحت التسليم</b></h4>
+        <div class="grid grid-2">
+          <div>
+            <div class="check-row">
+              <input id="chkAdminApproved" type="checkbox"/>
+              <label for="chkAdminApproved">موافقة إدارية</label>
+            </div>
+            <label for="adminNotes" style="margin-top:6px">ملاحظات الموافقة الإدارية</label>
+            <textarea id="adminNotes" placeholder="اكتب أي ملاحظات إدارية…"></textarea>
+          </div>
+          <div>
+            <div class="check-row">
+              <input id="chkFinanceApproved" type="checkbox"/>
+              <label for="chkFinanceApproved">موافقة مالية</label>
+            </div>
+            <label for="financeNotes" style="margin-top:6px">ملاحظات الموافقة المالية</label>
+            <textarea id="financeNotes" placeholder="اكتب أي ملاحظات مالية…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- أزرار تنفيذ الحركة -->
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-ghost" id="btnFindByVin" title="عرض بيانات السيارة (أول سطر غير فارغ)">
+          <i class="fa-solid fa-magnifying-glass"></i> عرض البيانات
+        </button>
+        <button class="btn btn-primary" id="btnMove" title="تنفيذ النقل">
+          <i class="fa-solid fa-right-left"></i> نقل
+        </button>
+      </div>
+      <p class="hint" id="moveStatus" style="margin-top:8px"></p>
+
+      <!-- إشعار حركة النقل الكبير -->
+      <div class="move-alert" id="moveAlert">
+        <div class="icon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+          <div class="title" id="moveAlertTitle">نتيجة حركة النقل</div>
+          <ul id="moveAlertList"></ul>
+        </div>
+      </div>
+
+      <!-- بطاقة عرض بيانات السيارة -->
+      <div class="card" id="carDetailsBox" style="display:none;margin-top:12px">
+        <div class="section-title">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect height="16" rx="2" width="18" x="3" y="4"></rect><path d="M7 8h10"></path></svg>
+          <h2 style="margin:0">عرض بيانات السيارة</h2>
+        </div>
+        <div class="table-like" id="carDetails" style="margin-top:8px"></div>
+        <p class="hint" id="carDetailsHint" style="margin-top:8px"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import {getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, updateDoc} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // ===== Firestore helpers (ensure persistence works) =====
+  const mzjSetDoc = (...args) => setDoc(...args);
+  const mzjUpdateDoc = (...args) => updateDoc(...args);
+
+
+  /* ===== Firebase ===== */
+  const firebaseConfig = {
+    apiKey: "AIzaSyC614bGqnYf4Q-weTNemzWENTpa8DjGeHw",
+    authDomain: "mzj-agenda.firebaseapp.com",
+    projectId: "mzj-agenda",
+    storageBucket: "mzj-agenda.firebasestorage.app",
+    messagingSenderId: "834700407721",
+    appId: "1:834700407721:web:75c17665d4f032fd65cab8"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const STATE_REF = doc(db, "mzj_admin_state", "v1");
+
+  /* ===== Roles & Permissions (Firestore) ===== */
+  const ROLE_ADMIN   = 'الادارة';
+  const ROLE_IDARI   = 'اداري';
+  const ROLE_BRANCH  = 'مدراء فروع';
+
+  // هذه الصفحة مسموحة لنفس صلاحيات admin.html (الإدارة فقط حالياً)
+  const PAGE_ALLOWED_ROLES = [ROLE_ADMIN, ROLE_IDARI];
+
+  // الصفحات المسموح بها لكل دور (استخدامها لإخفاء التابات)
+  const ROLE_PAGES = {
+    [ROLE_ADMIN] : 'ALL', // الإدارة تشوف كل الصفحات
+    // الإداري: يشوف فقط الداشبورد + نقل السيارات + إدارة الطلبات + كل السيارات
+    [ROLE_IDARI] : ['dashboard.html','vt.html','photoshoot-user.html','cars.html','inventory.html','act.html'],
+    [ROLE_BRANCH]: ['dashboard.html']
+  };
+
+  function applyTabsVisibility(role){
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab=>{
+      const href = tab.getAttribute('href') || '';
+      const page = (href.split('/').pop() || '').split('?')[0];
+      if(!page) return;
+      const perm = ROLE_PAGES[role];
+      if(!perm){
+        tab.style.display = 'none';
+        return;
+      }
+      if(perm === 'ALL') return; // الدور يشوف كل حاجة
+      if(!perm.includes(page)){
+        tab.style.display = 'none';
+      }
+    });
+  }
+
+  async function fetchUserRole(user){
+    try{
+      const userDocRef = doc(db, 'user', user.uid);
+      const snap = await getDoc(userDocRef);
+      if(snap.exists()){
+        const data = snap.data() || {};
+        return data.role || null;
+      }
+      return null;
+    }catch(err){
+      console.error('Error fetching user role:', err);
+      return null;
+    }
+  }
+
+  /* ===== Helpers / State ===== */
+  const $ = s => document.querySelector(s);
+  const toast = $('#toast');
+  function showToast(msg,type='ok'){toast.textContent=msg;toast.className='toast '+type;toast.style.display='block';setTimeout(()=>toast.style.display='none',1800)}
+  function pad(n){return n<10?'0'+n:n}
+  function now(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;}
+  function onlyDate(str){return (str||'').toString().slice(0,10)}
+  function normalizeVin(v){
+    if(!v) return '';
+    const ar={'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9'};
+    return v.toString().replace(/[٠-٩]/g,d=>ar[d]).toUpperCase().replace(/[\s\-\._]/g,'').trim();
+  }
+  function debounce(fn,wait=250){let t;return (...args)=>{clearTimeout(t);t=setTimeout(()=>fn(...args),wait)};}
+
+  let stock=[], moves=[], models=[], variantsMap={};
+
+  function liftNoFlash(){
+    const nf = document.getElementById('noFlash');
+    if(nf) nf.remove();
+    document.body.style.opacity = '1';
+  }
+
+  /* ===== DOM refs ===== */
+  const connDot=$('#connDot'), connText=$('#connText');
+  const authGate=$('#authGate'), appRoot=$('#app'), btnSignOut=$('#btnSignOut');
+  const emailEl=$('#email'), passEl=$('#password'), btnLogin=$('#btnLogin'), btnSignup=$('#btnSignup'), authHint=$('#authHint');
+
+  // حركة النقل
+  const moveRowsContainer = document.querySelector('#moveRowsContainer');
+  const btnAddMoveRow = document.querySelector('#btnAddMoveRow');
+  const moveToGlobal = document.querySelector('#moveToGlobal');
+  const btnFindByVin=$('#btnFindByVin'), btnMove=$('#btnMove');
+  const moveStatus=$('#moveStatus'), carDetailsBox=$('#carDetailsBox'), carDetails=$('#carDetails'), carDetailsHint=$('#carDetailsHint');
+
+  const underDeliveryBox=$('#underDeliveryBox');
+  const chkAdminApproved=$('#chkAdminApproved'), adminNotes=$('#adminNotes');
+  const chkFinanceApproved=$('#chkFinanceApproved'), financeNotes=$('#financeNotes');
+
+  const vinHints = $('#vinHints');
+
+  const moveAlert = $('#moveAlert');
+  const moveAlertTitle = $('#moveAlertTitle');
+  const moveAlertList  = $('#moveAlertList');
+
+  /* ===== Connection status ===== */
+  function setStatus(mode, txt){
+    connDot.className='dot '+(mode==='ok'?'ok':mode==='err'?'err':'warn');
+    connText.textContent = txt;
+  }
+
+  /* ===== Auth Gate ===== */
+  onAuthStateChanged(auth, async (user)=>{
+    if(user){
+      try{
+        const role = await fetchUserRole(user);
+    window.__mzjUserRole = role || null;
+        if(!role || !PAGE_ALLOWED_ROLES.includes(role)){
+          window.location.href = 'unauthorized.html';
+          return;
+        }
+        authGate.style.display = 'none';
+        appRoot.style.display  = 'block';
+        btnSignOut.style.display = 'inline-flex';
+        setStatus('ok', `متصل: ${user.email} — الدور: ${role}`);
+
+        // إخفاء التابات غير المسموح بها حسب الدور
+        applyTabsVisibility(role);
+
+        liftNoFlash();
+        await initData();
+        subscribeLive();
+      }catch(err){
+        console.error(err);
+        setStatus('err','خطأ في تحميل البيانات');
+        liftNoFlash();
+      }
+    }else{
+      appRoot.style.display   = 'none';
+      authGate.style.display  = 'grid';
+      btnSignOut.style.display = 'none';
+      setStatus('warn','لم يتم تسجيل الدخول');
+      liftNoFlash();
+    }
+  });
+
+  btnLogin.addEventListener('click', async ()=>{
+    authHint.textContent='';
+    try{ await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value); }
+    catch(e){ authHint.textContent='فشل تسجيل الدخول: '+(e?.message||e); }
+  });
+  btnSignup.addEventListener('click', async ()=>{
+    authHint.textContent='';
+    try{ await createUserWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value); }
+    catch(e){ authHint.textContent='تعذّر إنشاء الحساب: '+(e?.message||e); }
+  });
+  btnSignOut.addEventListener('click', ()=> signOut(auth));
+
+  /* ===== Data init / subscribe ===== */
+  async function initData(){
+    try{
+      const s=await getDoc(STATE_REF);
+      if(s.exists()){
+        const d=s.data()||{};
+        stock = Array.isArray(d.stock)? d.stock: [];
+        moves = Array.isArray(d.moves)? d.moves: [];
+        models = Array.isArray(d.models)? d.models: [];
+        variantsMap = d.variantsMap || {};
+      }else{
+        stock=[]; moves=[]; models=[]; variantsMap={};
+      }
+      fillMoveLists();
+      ensureAtLeastOneMoveRow();
+      updateRequirementBoxes();
+      toggleNotesVisibility();
+      setStatus('ok','تم تحميل البيانات');
+    }catch(e){
+      console.error(e);
+      setStatus('warn','تعذّر تحميل البيانات');
+    }
+  }
+
+  function subscribeLive(){
+    try{
+      onSnapshot(STATE_REF,(snap)=>{
+        if(!snap.exists()) return;
+        const d=snap.data()||{};
+        stock = Array.isArray(d.stock)? d.stock: stock;
+        moves = Array.isArray(d.moves)? d.moves: moves;
+        models= Array.isArray(d.models)? d.models: models;
+        variantsMap = d.variantsMap || variantsMap;
+        fillMoveLists();
+        updateRequirementBoxes();
+        toggleNotesVisibility();
+        setStatus('ok','مزامنة حيّة');
+      },()=> setStatus('warn','انقطاع المزامنة مؤقتًا'));
+    }catch(e){}
+  }
+
+  async function persistAll(){
+    try{
+      await mzjSetDoc(STATE_REF, { stock, moves, models, variantsMap, updatedAt: now() }, { merge:true });
+      setStatus('ok','تم الحفظ');
+    }catch(e){
+      console.error(e);
+      setStatus('err','تعذّر الحفظ');
+      showToast('تعذّر الحفظ إلى السحابة','err');
+    }
+  }
+
+  /* ===== حركة النقل — قوائم الأماكن ===== */
+  const FIXED_LOCATIONS = [
+    "المستودع : المخزون المتاح","المستودع : سيارات بها ملاحظات","المستودع : مباع تحت التسليم","المستودع : مباع تم التسليم",
+    "الوكالة : المخزون المتاح","الوكالة : سيارات بها ملاحظات","الوكالة : مباع تحت التسليم","الوكالة : مباع تم التسليم",
+    "فرع 1 الصالة : المخزون المتاح","فرع 1 الصالة : سيارات بها ملاحظات","فرع 1 الصالة : مباع تحت التسليم","فرع 1 الصالة : مباع تم التسليم",
+    "فرع 2 الملتقى : المخزون المتاح","فرع 2 الملتقى : سيارات بها ملاحظات","فرع 2 الملتقى : مباع تحت التسليم","فرع 2 الملتقى : مباع تم التسليم",
+    "فرع 3 القادسية : المخزون المتاح","فرع 3 القادسية : سيارات بها ملاحظات","فرع 3 القادسية : مباع تحت التسليم","فرع 3 القادسية : مباع تم التسليم"
+  ];
+
+  function fillMoveLists(){
+    const opts = FIXED_LOCATIONS.map(l=> `<option value="${l}">${l}</option>`).join('');
+    if(moveToGlobal) moveToGlobal.innerHTML = opts;
+    const fromSelects = moveRowsContainer ? moveRowsContainer.querySelectorAll('.move-from') : [];
+    fromSelects.forEach(sel=> sel.innerHTML=opts);
+  }
+
+  function fillMoveListsForRow(row){
+    const opts = FIXED_LOCATIONS.map(l=> `<option value="${l}">${l}</option>`).join('');
+    const fromSel = row.querySelector('.move-from');
+    if(fromSel) fromSel.innerHTML = opts;
+  }
+
+  function renderCarDetails(rec){
+    carDetails.innerHTML=`
+      <div style="grid-column:1/-1"><b>سيارة:</b> ${rec.car??""}</div>
+      <div><b>البيان:</b> ${rec.variant??""}</div>
+      <div><b>الوكيل:</b> ${rec.dealer??""}</div>
+      <div><b>اللون الخارجي:</b> ${rec.extColor??""}</div>
+      <div><b>اللون الداخلي:</b> ${rec.intColor??""}</div>
+      <div><b>موديل:</b> ${rec.modelYear??""}</div>
+      <div><b>اللوحة:</b> ${rec.plate??""}</div>
+      <div><b>المكان:</b> ${rec.location??""}</div>
+      <div><b>اسم الدفعة:</b> ${rec.batchName??""}</div>
+      <div style="grid-column:1/-1"><b>رقم الهيكل:</b> ${rec.vin??""}</div>
+      <div style="grid-column:1/-1"><b>الملاحظات:</b> ${rec.notes??""}</div>`;
+    carDetailsHint.textContent=rec.vin?`رقم الهيكل: ${rec.vin}`:'لا يوجد رقم هيكل محفوظ لهذه السيارة.';
+    carDetailsBox.style.display='block';
+  }
+
+  function hideMoveAlert(){
+    if(moveAlert){
+      moveAlert.style.display='none';
+      moveAlertList.innerHTML='';
+    }
+  }
+
+  function showMoveAlert(type, title, lines){
+    if(!moveAlert) return;
+    moveAlert.className = 'move-alert ' + (type || 'info');
+    moveAlertTitle.textContent = title || 'نتيجة حركة النقل';
+    moveAlertList.innerHTML = '';
+    (lines || []).forEach(txt=>{
+      const li = document.createElement('li');
+      li.textContent = txt;
+      moveAlertList.appendChild(li);
+    });
+    moveAlert.style.display = 'flex';
+  }
+
+  /* اقتراح VIN حسب البادئة/الأرقام المكتوبة */
+  function updateVinSuggestionsForPrefix(rawPrefix){
+    if(!vinHints) return;
+    const prefix = normalizeVin(rawPrefix||'');
+    if(prefix.length < 1){
+      vinHints.innerHTML = '';
+      return;
+    }
+    const set = new Set();
+    stock.forEach(r=>{
+      const v = normalizeVin(r.vin||'');
+      if(v && v.startsWith(prefix)) set.add(v);
+    });
+    const list = Array.from(set).sort().slice(0,30);
+    vinHints.innerHTML = list.map(v=>`<option value="${v}"></option>`).join('');
+  }
+
+  /* اقتراح المكان "من" لكل سطر عند كتابة VIN */
+  function autoFindByVinForRow(row, strictMessage=false){
+    const inp = row.querySelector('.move-vin');
+    const fromSel = row.querySelector('.move-from');
+    const vinRaw = (inp?.value||'').trim();
+    if(!vinRaw){
+      if(fromSel){
+        fromSel.disabled=false;
+        fromSel.value='';
+      }
+      const anyVin = moveRowsContainer.querySelectorAll('.move-vin');
+      const hasAnyVin = Array.from(anyVin).some(i=> normalizeVin(i.value));
+      if(!hasAnyVin){
+        carDetailsBox.style.display='none';
+        moveStatus.textContent='';
+      }
+      return;
+    }
+    const norm = normalizeVin(vinRaw);
+    let match = stock.find(r => normalizeVin(r.vin) === norm);
+    if(!match && norm.length >= 8){
+      const candidates = stock.filter(r => normalizeVin(r.vin).startsWith(norm));
+      if(candidates.length === 1) match = candidates[0];
+    }
+    if(match){
+      renderCarDetails(match);
+      const currentLoc = match.location || '';
+      if(currentLoc && fromSel){
+        fromSel.value = currentLoc;
+        fromSel.disabled = true;
+        moveStatus.textContent = `تم العثور: ${match.car} — المكان الحالي: ${currentLoc}`;
+      }else if(fromSel){
+        fromSel.disabled = false;
+        moveStatus.textContent = `تم العثور: ${match.car} — لا يوجد مكان مسجل. اختر المكان يدويًا.`;
+      }
+    }else{
+      if(strictMessage){
+        const msg = 'لم يتم العثور على سيارة بهذا الرقم.';
+        moveStatus.textContent = msg;
+        carDetailsBox.style.display='none';
+        showMoveAlert('error','لم يتم العثور على السيارة',[msg]);
+      }else{
+        moveStatus.textContent = '— لم يتم التعرف على السيارة بعد (أكمل رقم الهيكل).';
+      }
+    }
+  }
+
+  function attachMoveRowEvents(row){
+    const inp = row.querySelector('.move-vin');
+    if(!inp) return;
+    inp.addEventListener('input', debounce(()=>{
+      updateVinSuggestionsForPrefix(inp.value);
+      autoFindByVinForRow(row,false);
+    },150));
+  }
+
+  function createMoveRow(index){
+    const row = document.createElement('div');
+    row.className = 'move-row';
+    row.innerHTML = `
+      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div class="move-row-title">السيارة ${index}</div>
+        <button type="button" class="btn btn-ghost" data-remove-move-row="1" title="مسح هذه الحركة">مسح الحركة</button>
+      </div>
+      <div class="grid grid-3">
+        <div>
+          <label>رقم الهيكل</label>
+          <input class="move-vin" list="vinHints" placeholder="اكتب رقم الهيكل"/>
+        </div>
+        <div>
+          <label>من (محدّد تلقائيًا)</label>
+          <select class="move-from" title="المكان الحالي"></select>
+        </div>
+        <div class="notes-col">
+          <label>ملاحظات هذه السيارة</label>
+          <textarea class="move-notes" placeholder="ملاحظات خاصة بهذا الهيكل (اختياري)"></textarea>
+        </div>
+      </div>`;
+    fillMoveListsForRow(row);
+    attachMoveRowEvents(row);
+    return row;
+  }
+
+  function renumberMoveRows(){
+    const rows = moveRowsContainer.querySelectorAll('.move-row');
+    rows.forEach((row,idx)=>{
+      const title = row.querySelector('.move-row-title');
+      if(title) title.textContent = 'السيارة ' + (idx+1);
+    });
+  }
+
+  function ensureAtLeastOneMoveRow(){
+    if(!moveRowsContainer) return;
+    const existing = moveRowsContainer.querySelectorAll('.move-row').length;
+    if(existing === 0){
+      const row = createMoveRow(1);
+      moveRowsContainer.appendChild(row);
+    }
+    renumberMoveRows();
+  }
+
+  if(btnAddMoveRow){
+    btnAddMoveRow.addEventListener('click', ()=>{
+      const count = moveRowsContainer.querySelectorAll('.move-row').length;
+      const row = createMoveRow(count+1);
+      moveRowsContainer.appendChild(row);
+      renumberMoveRows();
+    });
+  }
+
+  // مسح صف حركة نقل واحد
+  document.addEventListener('click',(e)=>{
+    const btn = e.target.closest('[data-remove-move-row]');
+    if(!btn) return;
+    const row = btn.closest('.move-row');
+    if(row){
+      row.remove();
+      renumberMoveRows();
+    }
+  });
+
+  // عرض البيانات لأول VIN غير فارغ
+  btnFindByVin.addEventListener('click',()=>{
+    const rows = Array.from(moveRowsContainer.querySelectorAll('.move-row'));
+    const firstRow = rows.find(r=> normalizeVin((r.querySelector('.move-vin')?.value||'').trim()));
+    if(!firstRow){
+      const msg = 'اكتب رقم الهيكل في أي سطر أولًا.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','لا يوجد رقم هيكل',[msg]);
+      return;
+    }
+    autoFindByVinForRow(firstRow,true);
+  });
+
+  function updateRequirementBoxes(){
+    const val = (moveToGlobal?.value || '').trim();
+    const anyIssues        = /سيارات بها ملاحظات/.test(val);
+    if(underDeliveryBox){
+      underDeliveryBox.style.display = 'none';
+    }
+  }
+
+  if(moveToGlobal){
+    moveToGlobal.addEventListener('change', updateRequirementBoxes);
+  }
+
+  // إظهار/إخفاء ملاحظات كل سيارة حسب مكان (إلى)
+  function toggleNotesVisibility(){
+    const dest = (moveToGlobal?.value || '').trim();
+    const show = /سيارات بها ملاحظات/.test(dest);
+    const notesCols = document.querySelectorAll('.notes-col');
+    notesCols.forEach(col=>{
+      col.style.display = show ? 'block' : 'none';
+    });
+  }
+  if(moveToGlobal){
+    moveToGlobal.addEventListener('change', toggleNotesVisibility);
+  }
+
+  // تنفيذ النقل المتعدد (نفس منطق admin.html)
+  btnMove.addEventListener('click', async ()=>{
+    hideMoveAlert();
+
+    const dest = (moveToGlobal?.value || '').trim();
+    if(!dest){
+      const msg = 'اختر مكان "إلى" أولًا قبل تنفيذ النقل.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','مكان الوصول مطلوب',[msg]);
+      showToast(msg,'info');
+      return;
+    }
+
+    const rows = Array.from(moveRowsContainer.querySelectorAll('.move-row')).map(row=>({
+      row,
+      vinRaw:(row.querySelector('.move-vin')?.value||'').trim(),
+      fromSel:row.querySelector('.move-from'),
+      notesInput:row.querySelector('.move-notes')
+    }));
+    const rowsWithVin = rows.filter(r=> normalizeVin(r.vinRaw));
+
+    if(!rowsWithVin.length){
+      const msg = 'لم يتم إدخال أي رقم هيكل للنقل.';
+      moveStatus.textContent = msg;
+      showMoveAlert('info','لا توجد حركات نقل', [msg]);
+      showToast(msg,'info');
+      return;
+    }
+
+    const goingUnderDeliveryRow = /مباع تحت التسليم/.test(dest);
+    const goingIssuesRow        = /سيارات بها ملاحظات/.test(dest);
+    const goingDeliveredRow     = /مباع تم التسليم/.test(dest);
+
+    let movedCount = 0;
+    const errors = [];
+    const successLines = [];
+
+    for (const rowData of rowsWithVin){
+      const norm = normalizeVin(rowData.vinRaw);
+      const recIdx = stock.findIndex(r => normalizeVin(r.vin) === norm);
+      if(recIdx < 0){
+        errors.push(`لم يتم العثور على سيارة بهذا VIN: ${rowData.vinRaw}`);
+        continue;
+      }
+      const rec = stock[recIdx];
+      const toVal = dest;
+      const fromSel = rowData.fromSel;
+      const from = (fromSel?.value || rec.location || '').trim();
+      if(!from){
+        errors.push(`السيارة ${rec.car||''} (${rec.vin||rowData.vinRaw}) لا يوجد لها مكان حالي؛ حدّد المكان يدويًا في "من".`);
+        continue;
+      }
+      if(from === toVal){
+        errors.push(`السيارة ${rec.car||''} (${rec.vin||rowData.vinRaw}) موجودة بالفعل في نفس المكان.`);
+        continue;
+      }
+
+      const noteText = (rowData.notesInput?.value || '').trim();
+
+      if(goingIssuesRow && !noteText){
+        errors.push(`يجب كتابة ملاحظة للسيارة ${rec.car||''} (${rec.vin||rowData.vinRaw}) عند النقل إلى مكان "سيارات بها ملاحظات".`);
+        continue;
+      }
+
+      // ميتاداتا أساسية للحركة / الطلب
+      const moveMeta = {
+        adminApproved: null,
+        adminNotes: '',
+        financeApproved: null,
+        financeNotes: '',
+        issuesNotes: noteText
+      };
+
+      const oldLoc = rec.location || from;
+
+      // 🚚 منطق خاص بـ "مباع تحت التسليم"
+      if (goingUnderDeliveryRow) {
+        const stamp = now();
+
+        // ✅ لو السيارة واخدة موافقة مالية + إدارية قبل كدة
+        // ساعتها نسمح بالنقل لأي مكان (حتى تحت التسليم) بدون إنشاء "طلب موافقات" جديد في الداش بورد
+        const adminOk   = rec.adminApproved === true;
+        const financeOk = rec.financeApproved === true;
+        const approvalsDone = adminOk && financeOk;
+
+        // 1) ننقل السيارة فعليًا إلى مباع تحت التسليم
+        rec.location = toVal;
+        if ('place' in rec) {
+          rec.place = toVal;
+        }
+
+        stock[recIdx] = rec;
+        movedCount++;
+        successLines.push(`تم نقل ${rec.car||''} (${rec.vin||rowData.vinRaw}) من "${oldLoc}" إلى "${toVal}".`);
+
+        // نسجل حركة النقل إلى "مباع تحت التسليم"
+        moves.push({
+          when: stamp,
+          date: onlyDate(stamp),
+          vin: rec.vin || '',
+          car: rec.car || '',
+          from: oldLoc,
+          to: toVal,
+          id: rec.id,
+          ...moveMeta,
+          status: approvalsDone ? 'under_delivery_approved' : 'under_delivery',
+          message: approvalsDone
+            ? 'تم نقل السيارة إلى مباع تحت التسليم (الموافقات كانت مكتملة مسبقًا — بدون إنشاء طلب جديد)'
+            : 'تم نقل السيارة إلى مباع تحت التسليم بانتظار الموافقات لنقلها إلى مباع تم التسليم'
+        });
+
+        // 2) ننشئ طلب نقل إلى "مباع تم التسليم" في نفس الفرع لصفحة الداش بورد (مرة واحدة فقط)
+        //   - لو الموافقات مكتملة بالفعل => لا نُنشئ طلب جديد
+        //   - لو في طلب Pending قديم لنفس VIN => لا نُكرّر الطلب
+        if (!approvalsDone) {
+          const targetDelivered = toVal.replace('مباع تحت التسليم', 'مباع تم التسليم');
+
+          const hasPending = moves.some(m =>
+            normalizeVin(m.vin || '') === norm &&
+            (m.status === 'pending' || m.needsAdminApproval || m.needsFinanceApproval || m.requiresAdminApproval || m.requiresFinanceApproval) &&
+            (m.to || '') === targetDelivered
+          );
+
+          if (!hasPending) {
+            moves.push({
+              when: stamp,
+              date: onlyDate(stamp),
+              vin: rec.vin || '',
+              car: rec.car || '',
+              from: toVal,
+              to: targetDelivered,
+              id: rec.id,
+              adminApproved: false,
+              adminApproval: false,
+              financeApproved: false,
+              financeApproval: false,
+              requiresAdminApproval: true,
+              needsAdminApproval: true,
+              requiresFinanceApproval: true,
+              needsFinanceApproval: true,
+              status: 'pending',
+              message: 'طلب نقل إلى مباع تم التسليم من نفس الفرع (بانتظار موافقة الإدارة والمالية)'
+            });
+          }
+        }
+
+        continue;
+      }
+
+// 🚗 منطق خاص بـ "مباع تم التسليم" (مسموح من أي مكان طالما الموافقات مكتملة على السيارة)
+if (goingDeliveredRow) {
+  const stamp = now();
+
+  // ✅ أولوية الاعتماد: موافقات السيارة نفسها (تظل صالحة حتى لو انتقلت لأي مكان)
+  const adminOkFromCar   = rec.adminApproved === true;
+  const financeOkFromCar = rec.financeApproved === true;
+
+  // 🔁 توافق للخلف: لو ما فيه حقول موافقة على السيارة، جرّب آخر طلب موافقات مُسجل في الحركات
+  let adminOk = adminOkFromCar;
+  let financeOk = financeOkFromCar;
+
+  if (!adminOkFromCar || !financeOkFromCar) {
+    const deliveredTarget = toVal;
+    const relatedMoves = moves.filter(m =>
+      normalizeVin(m.vin || '') === norm && (m.to || '') === deliveredTarget
+    );
+    const lastMove = relatedMoves.length ? relatedMoves[relatedMoves.length - 1] : null;
+
+    if (lastMove) {
+      const adminOkFromMove = !!(lastMove.adminApproved === true || lastMove.adminApproval === true);
+      const financeOkFromMove = !!(lastMove.financeApproved === true || lastMove.financeApproval === true);
+
+      // إذا كانت موافقات السيارة غير موجودة، استخدم موافقات آخر طلب
+      if (!adminOkFromCar) adminOk = adminOkFromMove;
+      if (!financeOkFromCar) financeOk = financeOkFromMove;
+
+      // لو الموافقات اكتملت من الطلب، خزّنها على السيارة حتى تظل صالحة لاحقًا
+      if (adminOkFromMove) rec.adminApproved = true;
+      if (financeOkFromMove) rec.financeApproved = true;
+      if (adminOkFromMove && financeOkFromMove && !rec.approvedAt) rec.approvedAt = stamp;
+    }
+  }
+
+  if (!adminOk || !financeOk) {
+    const errMsg = `لايمكن نقل السيارة ${rec.car || ''} (${rec.vin || rowData.vinRaw}) إلى "مباع تم التسليم" بدون موافقة مالية وموافقة ادارية.`;
+    errors.push(errMsg);
+    continue;
+  }
+
+  // ✅ موافقات مكتملة: نفّذ النقل فعليًا (من أي مكان)
+  rec.location = toVal;
+  if ('place' in rec) {
+    rec.place = toVal;
+  }
+  // نعلّم السيارة إنها تم تسليمها فعلاً
+  rec.delivered   = true;
+  rec.deliveredAt = stamp;
+
+  moves.push({
+    when: stamp,
+    date: onlyDate(stamp),
+    vin: rec.vin || '',
+    car: rec.car || '',
+    from: oldLoc,
+    to: toVal,
+    id: rec.id,
+    adminApproved: true,
+    adminApproval: true,
+    financeApproved: true,
+    financeApproval: true,
+    requiresAdminApproval: false,
+    requiresFinanceApproval: false,
+    status: 'delivered',
+    message: 'تم تنفيذ نقل السيارة إلى مباع تم التسليم (الموافقات مكتملة على السيارة)'
+  });
+
+  stock[recIdx] = rec;
+  movedCount++;
+  successLines.push(
+    `تم نقل ${rec.car || ''} (${rowData.vinRaw}) إلى "${toVal}" لأن الموافقات مكتملة.`
+  );
+  continue;
+}
+
+// الحركات العادية (نقل فعلي) (نقل فعلي)
+      rec.location = toVal;
+      if (goingIssuesRow && noteText) {
+        const existingNotes = rec.notes || '';
+        rec.notes = existingNotes ? (existingNotes + " | " + noteText) : noteText;
+      }
+      const stamp = now();
+      moves.push({
+        when: stamp,
+        date: onlyDate(stamp),
+        vin: rec.vin || '',
+        car: rec.car || '',
+        from: oldLoc,
+        to: toVal,
+        id: rec.id,
+        ...moveMeta
+      });
+      movedCount++;
+      successLines.push(`تم نقل ${rec.car||''} (${rec.vin||rowData.vinRaw}) من "${oldLoc}" إلى "${toVal}".`);
+    }
+
+    if(!movedCount){
+      const title = 'لم يتم تنفيذ أي حركة نقل';
+      const lines = errors.length ? errors : ['لم يتم تنفيذ أي حركة نقل.'];
+      moveStatus.textContent = title;
+      showMoveAlert('error', title, lines);
+      showToast(title,'info');
+      return;
+    }
+
+    await persistAll();
+
+    const summary = `تم نقل ${movedCount} سيارة بنجاح.`;    
+    moveStatus.textContent = summary;
+    const allLines = [...successLines];
+    if(errors.length){
+      allLines.push('— ملاحظات على الحركات التي لم تُنفذ:');
+      errors.forEach(e=> allLines.push(e));
+    }
+    showMoveAlert(errors.length ? 'info' : 'success', 'نتيجة حركة النقل', allLines);
+    showToast(summary,'ok');
+
+    carDetailsBox.style.display='none';
+
+    // تفريغ الحقول
+    const allRows = Array.from(moveRowsContainer.querySelectorAll('.move-row'));
+    allRows.forEach(row=>{
+      const vin = row.querySelector('.move-vin');
+      const fromSel = row.querySelector('.move-from');
+      const notes = row.querySelector('.move-notes');
+      if(vin) vin.value='';
+      if(fromSel){ fromSel.disabled=false; fromSel.value=''; }
+      if(notes) notes.value='';
+    });
+
+    chkAdminApproved.checked=false; adminNotes.value='';
+    chkFinanceApproved.checked=false; financeNotes.value='';
+    if(vinHints) vinHints.innerHTML='';
+  });
+
+  // أول تحميل
+  setStatus('warn','جارِ الاتصال…');
+  fillMoveLists();
+  ensureAtLeastOneMoveRow();
+  updateRequirementBoxes();
+  toggleNotesVisibility();
+</script>
+  <script src="./mzj-ui.js"></script>
+
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>
+

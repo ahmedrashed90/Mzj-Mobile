@@ -1,0 +1,37 @@
+<!-- mzj-menu.html -->
+<button class="mzj-menu-btn" id="mzjMenuBtn" type="button" aria-label="القائمة">☰</button>
+<div class="mzj-menu-overlay" id="mzjMenuOverlay" aria-hidden="true"></div>
+
+<nav class="mzj-menu" id="mzjMenu" aria-label="قائمة الصفحات">
+  <div class="mzj-menu-head">
+    <div class="mzj-menu-title">القائمة</div>
+    <button class="mzj-menu-close" id="mzjMenuClose" type="button" aria-label="إغلاق">✕</button>
+  </div>
+
+  <a class="mzj-menu-link" href="m.dashboard.html">📊 داشبورد</a>
+  <a class="mzj-menu-link" href="m.admin.html">🏠 الإدارة</a>
+  <a class="mzj-menu-link" href="m.inventory.html">📦 المخزون</a>
+  <a class="mzj-menu-link" href="m.sales.html">💼 المبيعات</a>
+  <a class="mzj-menu-link" href="m.vt.html">↔️ نقل السيارات</a>
+  <a class="mzj-menu-link" href="m.photoshoot-user.html">📷 طلبات التصوير</a>
+  <a class="mzj-menu-link" href="m.cars.html">🚗 كل السيارات</a>
+  <a class="mzj-menu-link" href="m.Activity.html">🕘 سجل النشاط</a>
+  <a class="mzj-menu-link" href="m.act.html">🧾 سجل الحركات</a>
+</nav>
+
+<script>
+(function(){
+  const btn = document.getElementById('mzjMenuBtn');
+  const ov  = document.getElementById('mzjMenuOverlay');
+  const close = document.getElementById('mzjMenuClose');
+
+  function closeM(){ document.body.classList.remove('mzj-menu-open'); }
+  function toggleM(){ document.body.classList.toggle('mzj-menu-open'); }
+
+  if(btn) btn.addEventListener('click', toggleM);
+  if(ov) ov.addEventListener('click', closeM);
+  if(close) close.addEventListener('click', closeM);
+
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeM(); });
+})();
+</script>
