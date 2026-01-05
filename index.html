@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <link rel="icon" type="image/x-icon" href="assets/favicon.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MZJ Workspace — نجم الطريق</title>
+
+  <!-- Tajawal Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet"/>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --brown: #3e2420;
+      --beige: #bc8f74;
+      --cream: #fff8ef;
+      --dark: #020617;
+      --accent: #facc6b;
+      --danger: #ef4444;
+      --ok: #22c55e;
+      --shadow-soft: 0 20px 60px rgba(0,0,0,.65);
+      --radius-xl: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Tajawal", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top, #3b221d 0, #050609 55%, #000 100%);
+      color: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* Generic buttons */
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+      outline: none;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brown), #24110f);
+      border-color: #8b5a3d;
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(0,0,0,.55);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(0,0,0,.75);
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: rgba(249,250,251,.35);
+      color: #e5e7eb;
+    }
+    .btn-outline:hover {
+      background: rgba(15,23,42,.7);
+      transform: translateY(-1px);
+    }
+    .btn-sm { padding: 6px 10px; font-size: 12px; }
+    .btn:active { transform: translateY(0); box-shadow: none; }
+
+    /* Auth container */
+    .auth-wrap {
+      width: 100%;
+      max-width: 420px;
+      margin: auto;
+      display: grid;
+      place-items: center;
+    }
+    .auth-card {
+      width: 100%;
+      border-radius: var(--radius-xl);
+      padding: 18px 16px 16px;
+      background:
+        radial-gradient(circle at top left, rgba(252,211,77,.16), transparent 55%)
+        #050816;
+      border: 1px solid rgba(148,163,184,.65);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+    }
+    .auth-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.92);
+      border: 1px solid rgba(55,65,81,.95);
+      color: #e5e7eb;
+      font-size: 11px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .brand-pill .logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, var(--accent), #b45309 45%, #111827 100%);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #111827;
+      box-shadow: 0 0 18px rgba(250,204,21,.75);
+    }
+    .auth-card h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      color: #f9fafb;
+    }
+    .auth-card p.hint {
+      margin: 0;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-size: 13px;
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap .i {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      font-size: 13px;
+    }
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 9px 12px 9px 10px;
+      padding-right: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(55,65,81,.9);
+      background: rgba(15,23,42,.95);
+      color: #f9fafb;
+      font-size: 13px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease, transform .1s ease;
+    }
+    input::placeholder { color: #6b7280; }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(250,204,21,.7), 0 0 24px rgba(250,204,21,.35);
+      background: rgba(15,23,42,1);
+      transform: translateY(-0.5px);
+    }
+    .auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .auth-actions .btn { flex: 1; min-width: 0; }
+    #authHint {
+      min-height: 16px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    #authHint.error { color: #fecaca; }
+
+    /* Version select screen */
+    #app {
+      width: 100%;
+      max-width: 520px;
+      display: none;
+    }
+    .version-card {
+      margin-top: 10px;
+      border-radius: var(--radius-xl);
+      padding: 18px 16px 16px;
+      background:
+        radial-gradient(circle at top right, rgba(252,211,77,.14), transparent 55%)
+        #020617;
+      border: 1px solid rgba(148,163,184,.65);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+    .version-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at top left, rgba(250,204,21,.18), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(59,130,246,.12), transparent 55%);
+      opacity: .7;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
+    .version-inner { position: relative; z-index: 1; }
+    .version-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .version-title { display: flex; flex-direction: column; gap: 2px; }
+    .version-title h3 { margin: 0; font-size: 17px; color: #f9fafb; }
+    .version-title span { font-size: 12px; color: #9ca3af; }
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.9);
+      border: 1px solid rgba(55,65,81,.95);
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--ok);
+      box-shadow: 0 0 10px rgba(34,197,94,.9);
+    }
+    .version-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    @media (min-width:480px){
+      .version-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    }
+    .version-option {
+      position: relative;
+      border-radius: 16px;
+      padding: 12px 12px 12px;
+      background:
+        radial-gradient(circle at top left, rgba(250,204,21,.16), transparent 55%)
+        rgba(15,23,42,.92);
+      border: 1px solid rgba(75,85,99,.95);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .version-option:hover {
+      transform: translateY(-1px);
+      border-color: rgba(250,204,21,.9);
+      box-shadow: 0 18px 45px rgba(0,0,0,.85);
+      background:
+        radial-gradient(circle at top left, rgba(250,204,21,.22), transparent 60%)
+        rgba(15,23,42,.98);
+    }
+    .version-option button {
+      all: unset;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .version-headline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .version-headline h4 {
+      margin: 0;
+      font-size: 15px;
+      color: #f9fafb;
+    }
+    .version-headline span.badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.9);
+      border: 1px solid rgba(51,65,85,1);
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+    .version-body {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .version-footer {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 11px;
+      color: #d1d5db;
+    }
+    .version-footer .hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .version-footer i {
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    /* Splash overlay: نجم الطريق (GIF) */
+    .splash-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top, rgba(250,204,21,.18), transparent 55%),
+        radial-gradient(circle at bottom, rgba(15,23,42,.96), #000000);
+      z-index: 40;
+      color: #f9fafb;
+      animation: fade-in .35s ease-out;
+    }
+    .splash-inner {
+      width: min(520px, 100%);
+      margin: 16px;
+      border-radius: 24px;
+      padding: 18px 16px 16px;
+      background:
+        radial-gradient(circle at top left, rgba(250,204,21,.22), transparent 55%)
+        rgba(10,15,25,.98);
+      border: 1px solid rgba(148,163,184,.85);
+      box-shadow: 0 30px 90px rgba(0,0,0,.9);
+      position: relative;
+      overflow: hidden;
+    }
+    .splash-inner::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 20% 0, rgba(250,204,21,.28), transparent 60%),
+        radial-gradient(circle at 80% 100%, rgba(59,130,246,.18), transparent 60%);
+      opacity: .85;
+      mix-blend-mode: soft-light;
+      animation: bg-flow 12s linear infinite;
+    }
+    .splash-content { position: relative; z-index: 1; }
+
+    .splash-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .splash-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .splash-logo-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 30% 0, var(--accent), #b45309 45%, #111827 100%);
+      display: grid;
+      place-items: center;
+      color: #111827;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: 0 0 24px rgba(250,204,21,.95);
+    }
+    .splash-brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .splash-brand-text span.main {
+      font-size: 14px;
+      color: #f9fafb;
+      font-weight: 700;
+    }
+    .splash-brand-text span.sub {
+      font-size: 11px;
+      color: #cbd5f5;
+    }
+    .mini-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.9);
+      border: 1px solid rgba(55,65,81,.95);
+      font-size: 11px;
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mini-pill i {
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .splash-main {
+      margin-top: 6px;
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr);
+      gap: 12px;
+    }
+    .splash-headline {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .splash-headline h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #f9fafb;
+      letter-spacing: .02em;
+    }
+    .splash-headline h1 span.star-word {
+      background: linear-gradient(135deg, #facc6b, #fed7aa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .splash-headline p {
+      margin: 0;
+      font-size: 12px;
+      color: #cbd5f5;
+    }
+
+    /* مشهد GIF */
+    .media-scene {
+      margin-top: 10px;
+      border-radius: 20px;
+      padding: 18px 10px 14px;
+      background:
+        radial-gradient(circle at top, rgba(248,250,252,.15), transparent 55%)
+        rgba(10,16,30,.98);
+      border: 1px solid rgba(75,85,99,.95);
+      position: relative;
+      overflow: hidden;
+    }
+    .media-inner {
+      position: relative;
+      display: grid;
+      place-items: center;
+      padding: 4px 0 2px;
+    }
+    .media-inner::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(248,250,252,.45) 0, transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(248,250,252,.25) 0, transparent 55%),
+        radial-gradient(circle at 20% 80%, rgba(248,250,252,.25) 0, transparent 55%),
+        radial-gradient(circle at 90% 70%, rgba(248,250,252,.2) 0, transparent 55%);
+      opacity: .3;
+      mix-blend-mode: screen;
+      animation: stars-move 14s linear infinite alternate;
+    }
+    .brand-gif {
+      position: relative;
+      z-index: 1;
+      width: 140px;            /* نفس حجم نجم الطريق */
+      max-width: 42vw;
+      height: auto;
+      border-radius: 999px;
+      box-shadow:
+        0 0 30px rgba(250,204,21,.9),
+        0 0 60px rgba(250,204,21,.6);
+      display: block;
+      margin: 0 auto;
+    }
+    .media-label {
+      position: relative;
+      z-index: 1;
+      margin-top: 8px;
+      text-align: center;
+      font-size: 13px;
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .media-label span.name {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #fef9c3;
+    }
+    .media-label span.tagline {
+      font-size: 12px;
+      color: #cbd5f5;
+    }
+
+    .splash-meta {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: #e5e7eb;
+    }
+    .splash-meta .target {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .target-chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.96);
+      border: 1px solid rgba(51,65,85,1);
+      font-size: 11px;
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .target-chip i {
+      font-size: 11px;
+      color: var(--accent);
+    }
+    .countdown {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .countdown-number {
+      min-width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #facc6b, #b45309);
+      color: #111827;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 0 16px rgba(250,204,21,.9);
+    }
+
+    .splash-footer {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .splash-footer .left {
+      font-size: 11px;
+      color: #9ca3af;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .splash-footer .left i {
+      color: var(--ok);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      left: 16px;
+      max-width: 360px;
+      margin-inline: auto;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.98);
+      color: #f9fafb;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.9);
+      z-index: 60;
+    }
+    .toast.ok { border: 1px solid rgba(34,197,94,.95); }
+    .toast.err { border: 1px solid rgba(239,68,68,.95); }
+    .toast span.msg { flex: 1; }
+    .toast button {
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      padding: 0;
+      font-size: 13px;
+    }
+
+    /* Animations */
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bg-flow {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-80px); }
+    }
+    @keyframes stars-move {
+      from { transform: translate3d(0,0,0); }
+      to   { transform: translate3d(-18px,8px,0); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- شاشة تسجيل الدخول -->
+<div id="authGate" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="brand-pill">
+        <div class="logo">MZJ</div>
+        <span>MZJ Workspace</span>
+      </div>
+    </div>
+    <h2>تسجيل الدخول إلى لوحة التحكم</h2>
+    <p class="hint">سجّل دخولك بحساب الفريق للوصول إلى النسخة المناسبة لجهازك.</p>
+
+    <label for="email">البريد الإلكتروني</label>
+    <div class="input-wrap">
+      <span class="i"><i class="fa-regular fa-envelope"></i></span>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="username" />
+    </div>
+
+    <label for="password">كلمة المرور</label>
+    <div class="input-wrap">
+      <span class="i"><i class="fa-solid fa-lock"></i></span>
+      <input id="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <div class="auth-actions">
+      <button class="btn btn-primary" id="btnLogin">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>تسجيل الدخول</span>
+      </button>
+      <button class="btn btn-outline" id="btnSignup">
+        <i class="fa-regular fa-user"></i>
+        <span>إنشاء حساب</span>
+      </button>
+    </div>
+
+    <p id="authHint"></p>
+  </div>
+</div>
+
+<!-- شاشة اختيار نسخة الكمبيوتر / نسخة التليفون -->
+<div id="app">
+  <div class="version-card">
+    <div class="version-inner">
+      <div class="version-header">
+        <div class="version-title">
+          <h3>اختر واجهة العمل</h3>
+          <span>حدد النسخة الأنسب للجهاز الذي تعمل منه الآن.</span>
+        </div>
+        <div class="pill-badge">
+          <span class="pill-dot"></span>
+          <span>متصل بنظام العجمي</span>
+        </div>
+      </div>
+
+      <div class="version-grid">
+        <!-- نسخة الكمبيوتر -->
+        <div class="version-option">
+          <button type="button" class="version-btn" data-version="desktop">
+            <div class="version-headline">
+              <h4>💻 نسخة الكمبيوتر الكاملة</h4>
+              <span class="badge"></span>
+            </div>
+            <div class="version-body">
+            </div>
+            <div class="version-footer">
+              <div class="hint">
+                <i class="fa-solid fa-display"></i>
+              </div>
+              <div class="hint">
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- نسخة التليفون -->
+        <div class="version-option">
+          <button type="button" class="version-btn" data-version="mobile">
+            <div class="version-headline">
+              <h4>📱 نسخة الجوال السريعة</h4>
+              <span class="badge"></span>
+            </div>
+            <div class="version-body">
+            </div>
+            <div class="version-footer">
+              <div class="hint">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </div>
+              <div class="hint">
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- شاشة نجم الطريق المتحركة قبل التحويل (GIF) -->
+<div id="splashOverlay" class="splash-overlay">
+  <div class="splash-inner">
+    <div class="splash-content">
+      <div class="splash-top">
+        <div class="splash-brand">
+          <div class="splash-logo-circle">★</div>
+          <div class="splash-brand-text">
+            <span class="main">نجم الطريق</span>
+            <span class="sub">مجموعة محمد بن ذعار العجمي للسيارات</span>
+          </div>
+        </div>
+        <div class="mini-pill">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>مسار آمن… من الدخول حتى التحويل</span>
+        </div>
+      </div>
+
+      <div class="splash-main">
+        <div>
+          <div class="splash-headline">
+            <h1>
+              جاري تجهيز طريقك
+              <span class="star-word">للنسخة المختارة</span>
+            </h1>
+            <p>من لحظة اختيار النسخة… نضبط لك الواجهة، الاختصارات، وطريقة العرض عشان تبدأ شغلك بثقة وسرعة.</p>
+          </div>
+
+          <div class="media-scene">
+            <div class="media-inner">
+              <img
+                src="https://i.postimg.cc/mZjhQYjc/Untitled-1.gif"
+                alt="Nagm Al-Tareeq Loader"
+                class="brand-gif"
+              />
+              <div class="media-label">
+                <span class="name">نجم الطريق</span>
+                <span class="tagline">مع محمد بن ذعار العجمي للسيارات، أنت نجم الطريق.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="splash-meta">
+            <div class="target">
+              <span>يتم تجهيز:</span>
+              <span class="target-chip">
+                <i class="fa-solid fa-location-arrow"></i>
+                <span id="splashTargetLabel">نسخة الكمبيوتر</span>
+              </span>
+            </div>
+            <div class="countdown">
+              <span>التحويل خلال</span>
+              <span class="countdown-number" id="splashCountdown">5</span>
+              <span>ثواني…</span>
+            </div>
+          </div>
+
+          <div class="splash-footer">
+            <div class="left">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>من اختيار النسخة للتشغيل… كل خطوة محسوبة وسريعة.</span>
+            </div>
+            <button type="button" id="backToChoice" class="btn btn-outline btn-sm">
+              <i class="fa-solid fa-arrow-right"></i>
+              <span>الرجوع لاختيار النسخة</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">
+  <span class="msg"></span>
+  <button type="button" id="toastClose"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<!-- Firebase + منطق الصفحة -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC614bGqnYf4Q-weTNemzWENTpa8DjGeHw",
+    authDomain: "mzj-agenda.firebaseapp.com",
+    projectId: "mzj-agenda",
+    storageBucket: "mzj-agenda.firebasestorage.app",
+    messagingSenderId: "834700407721",
+    appId: "1:834700407721:web:75c17665d4f032fd65cab8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // مسارات النسخ
+  const DESKTOP_URL = "admin.html";        // عدلها لصفحة نسخة الكمبيوتر
+  const MOBILE_URL  = "m.admin.html"; // عدلها لصفحة نسخة التليفون
+
+  const $ = (s) => document.querySelector(s);
+
+  const authGate = $("#authGate");
+  const appRoot = $("#app");
+  const emailInput = $("#email");
+  const passwordInput = $("#password");
+  const btnLogin = $("#btnLogin");
+  const btnSignup = $("#btnSignup");
+  const authHint = $("#authHint");
+
+  const splashOverlay = $("#splashOverlay");
+  const splashTargetLabel = $("#splashTargetLabel");
+  const splashCountdown = $("#splashCountdown");
+  const backToChoiceBtn = $("#backToChoice");
+
+  const toastEl = $("#toast");
+  const toastMsg = toastEl?.querySelector(".msg");
+  const toastClose = $("#toastClose");
+
+  let redirectTimer = null;
+  let currentTargetUrl = null;
+  let countdown = 5;
+
+  function showToast(message, type = "ok") {
+    if (!toastEl || !toastMsg) return;
+    toastMsg.textContent = message;
+    toastEl.classList.remove("ok", "err");
+    toastEl.classList.add(type);
+    toastEl.style.display = "flex";
+  }
+
+  function hideToast() {
+    if (!toastEl) return;
+    toastEl.style.display = "none";
+  }
+
+  if (toastClose) {
+    toastClose.addEventListener("click", hideToast);
+  }
+
+  function setAuthHint(message, isError = false) {
+    if (!authHint) return;
+    authHint.textContent = message || "";
+    authHint.classList.toggle("error", !!isError);
+  }
+
+  // حالة المستخدم
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      if (authGate) authGate.style.display = "none";
+      if (appRoot) appRoot.style.display = "block";
+      setAuthHint("");
+      hideToast();
+    } else {
+      if (appRoot) appRoot.style.display = "none";
+      if (splashOverlay) splashOverlay.style.display = "none";
+      if (authGate) authGate.style.display = "grid";
+    }
+  });
+
+  // تسجيل الدخول
+  if (btnLogin) {
+    btnLogin.addEventListener("click", async () => {
+      const email = (emailInput?.value || "").trim();
+      const pass = (passwordInput?.value || "").trim();
+
+      if (!email || !pass) {
+        setAuthHint("من فضلك أدخل البريد الإلكتروني وكلمة المرور.", true);
+        return;
+      }
+      try {
+        setAuthHint("جاري تسجيل الدخول…");
+        await signInWithEmailAndPassword(auth, email, pass);
+        setAuthHint("تم تسجيل الدخول بنجاح.");
+      } catch (err) {
+        console.error(err);
+        setAuthHint("فشل تسجيل الدخول، تأكد من البيانات وحاول مرة أخرى.", true);
+        showToast("خطأ في تسجيل الدخول.", "err");
+      }
+    });
+  }
+
+  // إنشاء حساب
+  if (btnSignup) {
+    btnSignup.addEventListener("click", async () => {
+      const email = (emailInput?.value || "").trim();
+      const pass = (passwordInput?.value || "").trim();
+
+      if (!email || !pass) {
+        setAuthHint("من فضلك أدخل البريد الإلكتروني وكلمة المرور لإنشاء حساب.", true);
+        return;
+      }
+      try {
+        setAuthHint("جاري إنشاء الحساب…");
+        await createUserWithEmailAndPassword(auth, email, pass);
+        setAuthHint("تم إنشاء الحساب وتسجيل الدخول بنجاح.");
+        showToast("تم إنشاء الحساب بنجاح.", "ok");
+      } catch (err) {
+        console.error(err);
+        setAuthHint("تعذر إنشاء الحساب. قد يكون البريد مستخدمًا من قبل.", true);
+        showToast("تعذر إنشاء الحساب.", "err");
+      }
+    });
+  }
+
+  // منطق شاشة التحويل المتحركة
+  function startSplash(version) {
+    if (!splashOverlay || !splashTargetLabel || !splashCountdown) return;
+
+    const isMobile = version === "mobile";
+    currentTargetUrl = isMobile ? MOBILE_URL : DESKTOP_URL;
+
+    splashTargetLabel.textContent = isMobile ? "نسخة التليفون" : "نسخة الكمبيوتر";
+    countdown = 5;
+    splashCountdown.textContent = String(countdown);
+
+    splashOverlay.style.display = "flex";
+
+    if (redirectTimer) {
+      clearInterval(redirectTimer);
+      redirectTimer = null;
+    }
+
+    redirectTimer = setInterval(() => {
+      countdown -= 1;
+      if (countdown <= 0) {
+        clearInterval(redirectTimer);
+        redirectTimer = null;
+        if (currentTargetUrl) {
+          window.location.href = currentTargetUrl;
+        }
+      } else {
+        splashCountdown.textContent = String(countdown);
+      }
+    }, 1000);
+  }
+
+  function stopSplash() {
+    if (!splashOverlay) return;
+    splashOverlay.style.display = "none";
+    if (redirectTimer) {
+      clearInterval(redirectTimer);
+      redirectTimer = null;
+    }
+  }
+
+  // الضغط على الاختيارات
+  document.querySelectorAll(".version-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const version = btn.getAttribute("data-version") || "desktop";
+      startSplash(version);
+    });
+  });
+
+  // زر الرجوع لاختيار النسخة
+  if (backToChoiceBtn) {
+    backToChoiceBtn.addEventListener("click", () => {
+      stopSplash();
+    });
+  }
+
+  // مفتاح Esc يقفل شاشة التحويل
+  window.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      stopSplash();
+    }
+  });
+</script>
+</body>
+</html>
+
+
+
+
+
+
