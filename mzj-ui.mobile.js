@@ -1,165 +1,203 @@
-// MZJ UI helpers (global) — Mobile-first Sidebar (toggle) + Theme + Clock
-// ✅ No HTML changes required: works with existing IDs if present, and auto-creates backdrop if missing.
-(function () {
+/* MZJ Mobile UI v2 (JS)
+   - Mobile-first: visually remove topbar + sidebar (CSS handles visibility)
+   - Convert ALL tables into mobile cards on small screens
+   - Works with dynamic tables (MutationObserver on <tbody>)
+   - No HTML changes required
+*/
+(function(){
+  const isMobile = () => window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
 
-  function enhanceTables() {
-    try {
-      const tables = document.querySelectorAll('.mzj-content table');
-      tables.forEach((table) => {
-        // Skip if already inside a scrollable wrapper (like .table-wrap) or our wrapper
-        const parent = table.parentElement;
-        if (!parent) return;
+  function textOf(el){
+    return (el?.textContent || '').replace(/\s+/g,' ').trim();
+  }
 
-        const isAlreadyWrapped =
-          parent.classList.contains('table-wrap') ||
-          parent.classList.contains('mzj-table-scroll') ||
-          (getComputedStyle(parent).overflowX && getComputedStyle(parent).overflowX !== 'visible');
+  function ensureCardsContainer(table){
+    const wrap = table.closest('.table-wrap') || table.parentElement;
+    if(!wrap) return null;
 
-        if (isAlreadyWrapped) return;
-
-        // Wrap table
-        const wrap = document.createElement('div');
-        wrap.className = 'mzj-table-scroll';
-        parent.insertBefore(wrap, table);
-        wrap.appendChild(table);
-      });
-    } catch (e) {
-      // Silent: UI enhancement only
-      console.warn('enhanceTables failed', e);
+    let cards = wrap.querySelector('.mzj-cards');
+    if(!cards){
+      cards = document.createElement('div');
+      cards.className = 'mzj-cards';
+      // place after table
+      wrap.appendChild(cards);
     }
+    return cards;
   }
 
-  'use strict';
-
-  const body = document.body;
-  const shell = document.getElementById('mzjShell') || body; // fallback (won't break pages without shell)
-  const sidebar = document.getElementById('mzjSidebar');
-  const sidebarBtn = document.getElementById('mzjSidebarBtn');
-  let backdrop = document.getElementById('mzjBackdrop');
-  const themeBtn = document.getElementById('mzjThemeBtn');
-  const nowEl = document.getElementById('mzjNow');
-
-  const mqDesktop = window.matchMedia('(min-width: 1024px)');
-  const isDesktop = () => mqDesktop.matches;
-
-  // Ensure backdrop exists (some pages might not have it)
-  if (!backdrop && sidebar) {
-    backdrop = document.createElement('div');
-    backdrop.className = 'mzj-backdrop';
-    backdrop.id = 'mzjBackdrop';
-    // Prefer placing it inside the shell (so z-index stacking stays correct)
-    (document.getElementById('mzjShell') || body).appendChild(backdrop);
+  function getHeaders(table){
+    const ths = Array.from(table.querySelectorAll('thead th'));
+    return ths.map(th => textOf(th) || '');
   }
 
-  function lockScroll(lock) {
-    body.classList.toggle('mzj-noscr', !!lock);
-  }
+  function buildCardFromRow(headers, tr){
+    const tds = Array.from(tr.children);
+    // Skip empty rows
+    if(!tds.length) return null;
 
-  function openMobile() {
-    if (!shell || !sidebar) return;
-    shell.classList.add('sidebar-open');
-    lockScroll(true);
-  }
+    // Title strategy:
+    // Prefer VIN + Car if present. Otherwise first non-# column.
+    // We identify columns by header text (Arabic).
+    const h = headers.map(x=>x.toLowerCase());
+    const idxVin = h.findIndex(x=>x.includes('الهيكل') || x.includes('vin'));
+    const idxCar = h.findIndex(x=>x.includes('السيارة'));
+    const idxDate = h.findIndex(x=>x.includes('التاريخ'));
+    const idxFrom = h.findIndex(x=>x.includes('من'));
+    const idxTo   = h.findIndex(x=>x.includes('إلى') || x.includes('الى'));
+    const idxPlace= h.findIndex(x=>x.includes('المكان الحالي') || x.includes('المخزون'));
 
-  function closeMobile() {
-    shell?.classList.remove('sidebar-open');
-    lockScroll(false);
-  }
+    const vin = idxVin>=0 ? textOf(tds[idxVin]) : '';
+    const car = idxCar>=0 ? textOf(tds[idxCar]) : '';
+    const date= idxDate>=0? textOf(tds[idxDate]): '';
 
-  function toggleMobile() {
-    if (!shell || !sidebar) return;
-    const willOpen = !shell.classList.contains('sidebar-open');
-    shell.classList.toggle('sidebar-open');
-    lockScroll(willOpen);
-  }
+    const title = (vin && car) ? `${vin} — ${car}` : (car || vin || textOf(tds[0]) || '—');
 
-  function setCollapsed(v) {
-    if (!shell) return;
-    shell.classList.toggle('sidebar-collapsed', !!v);
-    try { localStorage.setItem('mzj_sidebar_collapsed', v ? '1' : '0'); } catch (e) {}
-  }
+    const card = document.createElement('div');
+    card.className = 'mzj-card-item';
 
-  // Restore collapse state on desktop
-  try {
-    if (isDesktop() && localStorage.getItem('mzj_sidebar_collapsed') === '1') setCollapsed(true);
-  } catch (e) {}
+    const top = document.createElement('div');
+    top.className = 'mzj-card-top';
 
-  // Switch between desktop/mobile behavior
-  mqDesktop.addEventListener?.('change', () => {
-    closeMobile();
-    if (isDesktop()) {
-      try { setCollapsed(localStorage.getItem('mzj_sidebar_collapsed') === '1'); } catch (e) {}
-    } else {
-      shell?.classList.remove('sidebar-collapsed');
-    }
-  });
+    const left = document.createElement('div');
+    const h3 = document.createElement('div');
+    h3.className = 'mzj-card-title';
+    h3.textContent = title;
 
-  // Sidebar button behavior
-  if (sidebarBtn) {
-    sidebarBtn.addEventListener('click', () => {
-      if (isDesktop()) {
-        // Desktop: collapse/expand (keeps layout)
-        setCollapsed(!shell?.classList.contains('sidebar-collapsed'));
-      } else {
-        // Mobile: off-canvas open/close
-        toggleMobile();
+    const sub = document.createElement('div');
+    sub.className = 'mzj-card-sub';
+    // build small pills: date + from->to
+    const from = idxFrom>=0 ? textOf(tds[idxFrom]) : '';
+    const to   = idxTo>=0 ? textOf(tds[idxTo]) : '';
+    const place= idxPlace>=0 ? textOf(tds[idxPlace]) : '';
+    const parts = [];
+    if(date) parts.push(date);
+    if(from || to) parts.push(`${from || '—'} → ${to || '—'}`);
+    if(place) parts.push(`المكان: ${place}`);
+    sub.textContent = parts.join(' • ');
+    left.appendChild(h3);
+    if(sub.textContent) left.appendChild(sub);
+
+    top.appendChild(left);
+    card.appendChild(top);
+
+    const kv = document.createElement('div');
+    kv.className = 'mzj-kv';
+
+    // Create key/value list for all columns except the title columns duplicated
+    for(let i=0;i<tds.length;i++){
+      const key = headers[i] || `حقل ${i+1}`;
+      const valEl = tds[i];
+      const valText = textOf(valEl);
+      if(!valText) continue;
+
+      // Skip pure index column (#) in cards
+      if(key.trim() === '#') continue;
+
+      // Skip if this is the same as title and would be redundant
+      if(i===idxVin && vin && title.includes(vin) && key.includes('الهيكل')) continue;
+      if(i===idxCar && car && title.includes(car) && key.includes('السيارة')) continue;
+
+      const row = document.createElement('div');
+      row.className = 'mzj-kv-row';
+
+      const k = document.createElement('div');
+      k.className = 'mzj-k';
+      k.textContent = key;
+
+      const v = document.createElement('div');
+      v.className = 'mzj-v';
+
+      // preserve copyable spans if exist
+      const copyable = valEl.querySelector?.('.copyable');
+      if(copyable){
+        const copyTxt = copyable.getAttribute('data-copy') || valText;
+        const a = document.createElement('span');
+        a.className = 'mzj-copy';
+        a.textContent = copyTxt;
+        a.setAttribute('data-copy', copyTxt);
+        a.style.cursor = 'pointer';
+        v.appendChild(a);
+      }else{
+        v.textContent = valText;
       }
-    }, { passive: true });
+
+      row.appendChild(k);
+      row.appendChild(v);
+      kv.appendChild(row);
+    }
+
+    card.appendChild(kv);
+    return card;
   }
 
-  // Backdrop click closes on mobile
-  if (backdrop) {
-    backdrop.addEventListener('click', closeMobile, { passive: true });
+  function renderCardsForTable(table){
+    if(!isMobile()) return;
+
+    const cards = ensureCardsContainer(table);
+    if(!cards) return;
+
+    const headers = getHeaders(table);
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+    // Clear
+    cards.innerHTML = '';
+
+    rows.forEach(tr=>{
+      const card = buildCardFromRow(headers, tr);
+      if(card) cards.appendChild(card);
+    });
+
+    // If empty, show placeholder
+    if(!cards.children.length){
+      const empty = document.createElement('div');
+      empty.className = 'mzj-card-item';
+      empty.innerHTML = '<div class="mzj-card-title">لا توجد بيانات</div><div class="mzj-card-sub">—</div>';
+      cards.appendChild(empty);
+    }
   }
 
-  // ESC closes on mobile
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeMobile();
-  });
+  function setupTableObserver(table){
+    const tbody = table.querySelector('tbody');
+    if(!tbody) return;
 
-  // Close sidebar after clicking a nav link on mobile (better UX)
-  if (sidebar) {
-    sidebar.addEventListener('click', (e) => {
-      if (isDesktop()) return;
-      const a = e.target && (e.target.closest ? e.target.closest('a') : null);
-      if (a) closeMobile();
+    const obs = new MutationObserver(()=>{
+      // throttle by rAF
+      requestAnimationFrame(()=> renderCardsForTable(table));
+    });
+    obs.observe(tbody, {childList:true, subtree:true, characterData:true});
+  }
+
+  function wireCopy(){
+    document.addEventListener('click', (e)=>{
+      const el = e.target.closest('[data-copy].mzj-copy, [data-copy].copyable');
+      if(!el) return;
+      const txt = (el.getAttribute('data-copy') || el.textContent || '').trim();
+      if(!txt) return;
+      navigator.clipboard?.writeText(txt).catch(()=>{});
     });
   }
 
-  // Theme toggle (optional)
-  function setTheme(mode) {
-    // mode: 'dark' | 'light'
-    body.classList.toggle('dark', mode === 'dark');
-    body.setAttribute('data-theme', mode);
-    try { localStorage.setItem('mzj_theme', mode); } catch (e) {}
+  function init(){
+    // Convert all tables
+    const tables = Array.from(document.querySelectorAll('table'));
+    tables.forEach(t=>{
+      setupTableObserver(t);
+      renderCardsForTable(t);
+    });
+
+    // Re-render on resize (switching breakpoint)
+    window.addEventListener('resize', ()=>{
+      if(!isMobile()) return;
+      const tables2 = Array.from(document.querySelectorAll('table'));
+      tables2.forEach(renderCardsForTable);
+    }, {passive:true});
+
+    wireCopy();
   }
 
-  (function restoreTheme() {
-    try {
-      const saved = localStorage.getItem('mzj_theme');
-      if (saved === 'dark' || saved === 'light') setTheme(saved);
-    } catch (e) {}
-  })();
-
-  if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-      const isDark = body.classList.contains('dark') || body.getAttribute('data-theme') === 'dark';
-      setTheme(isDark ? 'light' : 'dark');
-    }, { passive: true });
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{
+    init();
   }
-
-  // Clock (optional)
-  function tick() {
-    if (!nowEl) return;
-    try {
-      const d = new Date();
-      // Arabic locale, keep it light (no seconds)
-      nowEl.textContent = d.toLocaleString('ar-SA', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
-    } catch (e) {
-      nowEl.textContent = '—';
-    }
-  }
-  tick();
-  setInterval(tick, 30000);
-
 })();
